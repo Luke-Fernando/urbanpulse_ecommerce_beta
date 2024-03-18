@@ -1,0 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.font-fm-poppins {
+  font-family: $primary-font;
+}
+.font-fm-inter {
+  font-family: "Inter", sans-serif;
+}
+:root {
+  --red: #ff0000;
+  --main-bg-low: hsla(205, 100%, 24%, 0.774);
+  --main-bg-high: hsl(205, 100%, 24%);
+  --secondary-bg: #3e6680;
+  --input-border-low: hsla(204, 35%, 37%, 0.5);
+  --input-border-high: hsl(204, 35%, 37%);
+  --active-bg: #00b295;
+  --text-white-low: #eaeaea;
+  --text-white-high: #ffffff;
+  --text-black-low: #272727;
+  --text-black-high: #000000;
+}
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin: 100px auto;
+  background-color: var(--active-bg);
+
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1s infinite ease-in-out;
+  animation: sk-scaleout 1s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 0;
+  }
+}

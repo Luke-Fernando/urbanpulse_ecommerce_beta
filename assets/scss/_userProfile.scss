@@ -1,0 +1,7 @@
+.profile-image {
+  &:hover {
+    .update-image {
+      opacity: 1 !important;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+# RewriteEngine on
+
+# RewriteRule ^home$ index.php [NC]
+# RewriteRule ^add-product$ addProduct.php [NC]
+# RewriteRule ^add-review$ addReview.php [NC]
+# RewriteRule ^admin$ admin.php [NC]
+# RewriteRule ^admin-signin$ adminSignin.php [NC]
+# RewriteRule ^all-products$ allProducts.php [NC]
+# RewriteRule ^cart$ cart.php [NC]
+# RewriteRule ^invoice$ invoice.php [NC]
+# RewriteRule ^messages$ messages.php [NC]
+# RewriteRule ^my-orders$ myOrders.php [NC]
+# ####
+# # RewriteRule ^my-products$ myProducts.php [NC]
+# ####
+# RewriteRule ^product$ productPage.php [NC]
+# RewriteRule ^reset-password$ resetPassword.php [NC]
+# RewriteRule ^reviews$ reviews.php [NC]
+# RewriteRule ^seller-dashboard$ sellerDashboard.php [NC]
+# RewriteRule ^signin$ signin.php [NC]
+# RewriteRule ^signup$ signup.php [NC]
+# RewriteRule ^update-product$ updateProduct.php [NC]
+# RewriteRule ^update-review$ updateReview.php [NC]
+# RewriteRule ^user-profile$ userProfile.php [NC]
+# RewriteRule ^wishlist$ wishlist.php [NC]

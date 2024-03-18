@@ -1,0 +1,12 @@
+@keyframes dismissBadge {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.dismiss-badge {
+  animation: dismissBadge 100ms linear forwards;
+}

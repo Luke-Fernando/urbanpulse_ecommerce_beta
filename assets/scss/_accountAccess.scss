@@ -1,0 +1,42 @@
+.account-access-page-topic{
+    font-weight: 500;
+    color: $text-black-high;
+}
+.account-access-border{
+    border-color: $input-border-high !important;
+}
+.account-access-label{
+    color: $text-black-low;
+}
+.account-access-input{
+    background-color: $text-white-high;
+    outline: 0.1px solid $input-border-low;
+    transition: all 200ms linear;
+    box-sizing: border-box;
+    &:focus{
+        outline: 0.5px solid $input-border-high;
+    }
+}
+.password-toggle-eye{
+    color: $input-border-high;
+}
+.account-access-selected-value{
+    color: $text-black-low;
+}
+.account-access-arrow{
+    color: $text-black-low;
+    transition: all 200ms linear;
+}
+.account-access-options{
+    background-color: $text-white-high;
+    border: 0.1px solid $input-border-low;
+}
+.account-access-selector{
+    border: 0.1px solid $input-border-low;
+}
+.account-access-option{
+    transition: all 200ms linear;
+    &:hover{
+        background-color: $input-border-low;
+    }
+}
