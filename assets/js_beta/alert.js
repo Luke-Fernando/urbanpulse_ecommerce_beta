@@ -1,7 +1,11 @@
 class Alert {
   constructor(targetElementId) {
     this.flag = false;
-    this.targetElement = document.getElementById(`${targetElementId}`);
+    if (targetElementId) {
+      this.targetElement = document.getElementById(`${targetElementId}`);
+    } else {
+      this.targetElement = null;
+    }
   }
 
   createSuccessAlert(successText) {
@@ -88,7 +92,7 @@ class Alert {
     return errorAlert;
   }
 
-  async success(successText) {
+  async success(successText, callback = null) {
     let successAlert = this.createSuccessAlert(successText);
     await new Promise((resolve) => setTimeout(resolve, 10));
     successAlert.classList.remove("opacity-0");
@@ -98,9 +102,20 @@ class Alert {
     successAlert.classList.add("-translate-y-8");
     await new Promise((resolve) => setTimeout(resolve, 20));
     successAlert.classList.add("opacity-0");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    successAlert.addEventListener(
+      "transitionend",
+      function () {
+        document.body.removeChild(successAlert);
+        if (callback && typeof callback === "function") {
+          callback();
+        }
+      },
+      { once: true }
+    );
   }
 
-  async error(errorText) {
+  async error(errorText, callback = null) {
     let errorAlert = this.createErrorAlert(errorText);
     await new Promise((resolve) => setTimeout(resolve, 10));
     errorAlert.classList.remove("opacity-0");
@@ -110,6 +125,17 @@ class Alert {
     errorAlert.classList.add("-translate-y-8");
     await new Promise((resolve) => setTimeout(resolve, 20));
     errorAlert.classList.add("opacity-0");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    errorAlert.addEventListener(
+      "transitionend",
+      function () {
+        document.body.removeChild(errorAlert);
+        if (callback && typeof callback === "function") {
+          callback();
+        }
+      },
+      { once: true }
+    );
   }
 
   // deprecated

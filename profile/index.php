@@ -114,12 +114,12 @@ if (isset($_SESSION["user"])) {
                                                                                                                                             }
                                                                                                                                         }
                                                                                                                                         ?>" alt="Bonnie image" />
-                            <label for="update-image" class="flex justify-center items-center update-image w-full h-full absolute z-10 top-0 left-0 bg-black/30 opacity-0  text-[var(--text-white-high)] transition-all duration-100 ease-linear">
+                            <label for="update-profile-picture-btn" class="flex justify-center items-center update-image w-full h-full absolute z-10 top-0 left-0 bg-black/30 opacity-0  text-[var(--text-white-high)] transition-all duration-100 ease-linear">
                                 <span class="material-symbols-outlined !text-3xl">
                                     edit
                                 </span>
                             </label>
-                            <input type="file" accept="image/*" id="update-image" class="hidden">
+                            <input type="file" accept="image/*" id="update-profile-picture-btn" class="hidden">
                         </div>
                         <h5 class="mb-1 mt-2 text-xl font-medium text-gray-900"><?php echo $user["first_name"] . " " . $user["last_name"]; ?></h5>
                         <span class="text-sm text-gray-500"><?php echo $user["email"]; ?></span>
@@ -241,7 +241,7 @@ if (isset($_SESSION["user"])) {
                     </button>
                 </div>
                 <div class="w-full my-8">
-                    <button id="save-changes-btn" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 
+                    <button id="update-profile-btn" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 
                 ease-linear hover:bg-[var(--main-bg-low)] 
                     font-medium text-[15px] w-full py-2 capitalize font-fm-inter">save changes</button>
                 </div>
@@ -249,7 +249,7 @@ if (isset($_SESSION["user"])) {
         </section>
 
         <script src="../assets/js/accountAccess.js"></script>
-        <script type="module" src="../assets/js/updateProfile.js"></script>
+        <!-- <script type="module" src="../assets/js/updateProfile.js"></script> -->
     </body>
 
     </html>

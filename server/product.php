@@ -28,25 +28,25 @@ class Product
     public function list_product()
     {
         if ($this->check_session()) {
-            if (isset($_POST["title"])) {
-                if (isset($_POST["description"])) {
-                    if (isset($_POST["price"])) {
-                        if (isset($_POST["quantity"])) {
+            if (isset($_POST["title"]) && !empty($_POST["title"])) {
+                if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                    if (isset($_POST["price"]) && !empty($_POST["price"])) {
+                        if (isset($_POST["quantity"]) && !empty($_POST["quantity"])) {
                             echo ("success");
                         } else {
-                            echo ("please add the quantity");
+                            echo ("Please add the quantity");
                         }
                     } else {
-                        echo ("please add the price");
+                        echo ("Please add the price");
                     }
                 } else {
-                    echo ("please fill the description");
+                    echo ("Please fill the description");
                 }
             } else {
-                echo ("please fill the title");
+                echo ("Please fill the title");
             }
         } else {
-            echo ("please signin to your account");
+            echo ("Please signin to your account");
         }
     }
 }

@@ -17,8 +17,8 @@ class Database
             $password = $_ENV["DB_PASSWORD"];
             $database = $_ENV["DB_NAME_REMOTE"];
             $port = $_ENV["PORT"];
-            Database::$connection = new mysqli($_ENV["DB_HOST"], $_ENV["DB_USERNAME"], $_ENV["DB_PASSWORD"], $_ENV["DB_NAME"], $_ENV["PORT"]);
-            // Database::$connection = new mysqli($host, $username, $password, $database, $port);
+            // Database::$connection = new mysqli($_ENV["DB_HOST"], $_ENV["DB_USERNAME"], $_ENV["DB_PASSWORD"], $_ENV["DB_NAME"], $_ENV["PORT"]);
+            Database::$connection = new mysqli($host, $username, $password, $database, $port);
         }
     }
     public static function iud($query, $paraArr)

@@ -30,6 +30,16 @@ if (isset($_GET["action"])) {
                 $user->reset_password();
             }
             // reset_password 
+            // update_profile 
+            if ($_GET["process"] == "update_profile") {
+                $user->update_profile();
+            }
+            // update_profile 
+            // update_profile_picture 
+            if ($_GET["process"] == "update_profile_picture") {
+                $user->update_profile_picture();
+            }
+            // update_profile_picture 
         }
         // user 
     }

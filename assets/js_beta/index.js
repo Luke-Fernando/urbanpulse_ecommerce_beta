@@ -1,10 +1,11 @@
+import Product from "./product.js";
 import User from "./user.js";
 
-function callUserMethod(triggerId, method) {
+function callUserMethod(triggerId, method, event = "click") {
   let user = new User();
-  let trigger = document.getElementById(`${triggerId}`);
+  let trigger = document.getElementById(triggerId);
   if (trigger != null) {
-    trigger.addEventListener("click", () => {
+    trigger.addEventListener(event, () => {
       user[method]();
     });
   }
@@ -15,3 +16,41 @@ callUserMethod("signin-btn", "signin");
 callUserMethod("signout-btn", "signout");
 callUserMethod("reset-link-btn", "sendResetToken");
 callUserMethod("reset-password-btn", "resetPassword");
+callUserMethod("update-profile-btn", "updateProfile");
+callUserMethod("update-profile-picture-btn", "updateProfilePicture", "change");
+
+function addProduct() {
+  let product = new Product();
+
+  function callProductMethod(triggerId, method, event = "click") {
+    let trigger = document.getElementById(triggerId);
+    if (trigger != null) {
+      trigger.addEventListener(event, () => {
+        if (product != null || product instanceof Product) {
+          product[method]();
+        } else {
+          product = new Product();
+          product[method]();
+        }
+      });
+    }
+  }
+
+  function removeTag(containerId, method) {
+    let container = document.getElementById(containerId);
+    if (container != null) {
+      container.addEventListener("click", (event) => {
+        product[method](event);
+      });
+    }
+  }
+
+  callProductMethod("add-color-btn", "addColor");
+  callProductMethod("add-location-btn", "addLocations");
+  callProductMethod("add-country-btn", "addShippingCosts");
+  removeTag("colors", "removeColor");
+  removeTag("locations", "removeLocations");
+  removeTag("shipping-countries", "removeShippingCosts");
+}
+
+addProduct();

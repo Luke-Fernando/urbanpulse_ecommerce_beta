@@ -14,7 +14,7 @@ if (isset($_SESSION["user"])) {
     head($title);
     ?>
 
-    <body>
+    <body id="window">
         <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
             <div class="spinner"></div>
         </div>
@@ -204,7 +204,7 @@ if (isset($_SESSION["user"])) {
                     <label for="country" class="block w-full mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">add shippping locations</label>
                     <select id="country" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block flex-1 p-2.5 capitalize">
-                        <option value="0" selected>worldwide</option>
+                        <option value="worldwide" selected>worldwide</option>
                         <?php
                         $country_resultset = Database::search("SELECT * FROM `country`", []);
                         $country_num = $country_resultset->num_rows;
@@ -290,8 +290,9 @@ if (isset($_SESSION["user"])) {
             </div>
         </section>
 
-        <script type="module" src="../assets/js/addProduct.js"></script>
-        <script src="../assets/js/badge.js"></script>
+        <!-- <script type="module" src="../assets/js/addProduct.js"></script>
+        <script src="../assets/js/badge.js"></script> -->
+        <script type="module" src="../assets/js_beta/index.js"></script>
     </body>
 
     </html>

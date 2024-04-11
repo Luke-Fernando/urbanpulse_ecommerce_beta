@@ -56,15 +56,15 @@ class User
 
     public function signup()
     {
-        if (isset($_POST["first_name"])) {
-            if (isset($_POST["last_name"])) {
-                if (isset($_POST["email"])) {
+        if (isset($_POST["first_name"]) && !empty($_POST["first_name"])) {
+            if (isset($_POST["last_name"]) && !empty($_POST["last_name"])) {
+                if (isset($_POST["email"]) && !empty($_POST["email"])) {
                     if (filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
                         $users_resultset_by_email = Database::search("SELECT * FROM `users` WHERE `email`=?", [$_POST["email"]]);
                         $users_resultset_num_by_email = $users_resultset_by_email->num_rows;
                         if ($users_resultset_num_by_email == 0) {
-                            if (isset($_POST["password"])) {
-                                if (isset($_POST["confirm_password"])) {
+                            if (isset($_POST["password"]) && !empty($_POST["password"])) {
+                                if (isset($_POST["confirm_password"]) && !empty($_POST["confirm_password"])) {
                                     if ($this->validate_password($_POST["password"])) {
                                         if ($_POST["password"] == $_POST["confirm_password"]) {
                                             if (isset($_POST["country"])) {
@@ -90,54 +90,54 @@ class User
                                                                 $_SESSION["user"] = $user_data;
                                                                 echo ("success");
                                                             } else {
-                                                                echo ("you must agree with our terms and conditions");
+                                                                echo ("You must agree with our terms and conditions");
                                                             }
                                                         } else {
-                                                            echo ("you must agree with our terms and conditions");
+                                                            echo ("You must agree with our terms and conditions");
                                                         }
                                                     } else {
-                                                        echo ("please select your gender");
+                                                        echo ("Please select your gender");
                                                     }
                                                 } else {
-                                                    echo ("please select your country");
+                                                    echo ("Please select your country");
                                                 }
                                             } else {
-                                                echo ("please select your country");
+                                                echo ("Please select your country");
                                             }
                                         } else {
-                                            echo ("passwords doesn't match");
+                                            echo ("Passwords doesn't match");
                                         }
                                     } else {
-                                        echo ("password must be at least 8 characters long and must contain at least one uppercase letter, 
+                                        echo ("Password must be at least 8 characters long and must contain at least one uppercase letter, 
                                         one lowercase letter, one number and one special character");
                                     }
                                 } else {
-                                    echo ("please confirm your password");
+                                    echo ("Please confirm your password");
                                 }
                             } else {
-                                echo ("please fill the password");
+                                echo ("Please fill the password");
                             }
                         } else {
-                            echo ("email already exist");
+                            echo ("Email already exist");
                         }
                     } else {
-                        echo ("email is not valid");
+                        echo ("Email is not valid");
                     }
                 } else {
-                    echo ("please fill the email");
+                    echo ("Please fill the email");
                 }
             } else {
-                echo ("please fill the last name");
+                echo ("Please fill the last name");
             }
         } else {
-            echo ("please fill the first name");
+            echo ("Please fill the first name");
         }
     }
 
     public function signin()
     {
-        if (isset($_POST["email"])) {
-            if (isset($_POST["password"])) {
+        if (isset($_POST["email"]) && !empty($_POST["email"])) {
+            if (isset($_POST["password"]) && !empty($_POST["password"])) {
                 $email = $_POST["email"];
                 $password = $_POST["password"];
                 $user_resultset = Database::search("SELECT * FROM `users` WHERE `email`=? AND `password`=?", [$email, $password]);
@@ -159,15 +159,15 @@ class User
                     }
                     echo ("success");
                 } else if ($user_num > 1) {
-                    echo ("something went wrong");
+                    echo ("Something went wrong");
                 } else if ($user_num == 0) {
-                    echo ("invalid email or password");
+                    echo ("Invalid email or password");
                 }
             } else {
-                echo ("please fill the password");
+                echo ("Please fill the password");
             }
         } else {
-            echo ("please fill the email");
+            echo ("Please fill the email");
         }
     }
 
@@ -182,7 +182,7 @@ class User
 
     public function send_reset_token()
     {
-        if (isset($_POST["email"]) || !empty($_POST["email"])) {
+        if (isset($_POST["email"]) && !empty($_POST["email"])) {
             if (filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
                 $email = $_POST["email"];
                 $user_resultset = Database::search("SELECT * FROM `users` WHERE `email`=?", [$email]);
@@ -224,8 +224,8 @@ class User
     {
         if (isset($_POST["token"])) {
             if (isset($_POST["id"])) {
-                if (isset($_POST["new_password"]) || !empty($_POST["new_password"])) {
-                    if (isset($_POST["confirm_password"]) || !empty($_POST["confirm_password"])) {
+                if (isset($_POST["new_password"]) && !empty($_POST["new_password"])) {
+                    if (isset($_POST["confirm_password"]) && !empty($_POST["confirm_password"])) {
                         if ($this->validate_password($_POST["new_password"])) {
                             if ($_POST["new_password"] == $_POST["confirm_password"]) {
                                 $token = $_POST["token"];
@@ -269,8 +269,8 @@ class User
     public function update_profile()
     {
         if ($this->check_session()) {
-            if (isset($_POST["first_name"])) {
-                if (isset($_POST["last_name"])) {
+            if (isset($_POST["first_name"]) && !empty($_POST["first_name"])) {
+                if (isset($_POST["last_name"]) && !empty($_POST["last_name"])) {
                     if (isset($_POST["country"])) {
                         if ($_POST["country"] != "0") {
                             $user = $_SESSION["user"];
@@ -292,7 +292,7 @@ class User
                             }
                             // last name 
                             // Address line 1 
-                            if (isset($_POST["address_line_1"])) {
+                            if (isset($_POST["address_line_1"]) && !empty($_POST["address_line_1"])) {
                                 $address_line_1 = $_POST["address_line_1"];
                                 if ($address_line_1 != $user["address_line_1"]) {
                                     $update_query .= " `address_line_1` = ?,";
@@ -301,7 +301,7 @@ class User
                             }
                             // Address line 1 
                             // Address line 2 
-                            if (isset($_POST["address_line_2"])) {
+                            if (isset($_POST["address_line_2"]) && !empty($_POST["address_line_2"])) {
                                 $address_line_2 = $_POST["address_line_2"];
                                 if ($address_line_2 != $user["address_line_2"]) {
                                     $update_query .= " `address_line_2` = ?,";
@@ -310,7 +310,7 @@ class User
                             }
                             // Address line 2
                             // City 
-                            if (isset($_POST["city"])) {
+                            if (isset($_POST["city"]) && !empty($_POST["city"])) {
                                 $city = $_POST["city"];
                                 if ($city != $user["city"]) {
                                     $update_query .= " `city` = ?,";
@@ -319,7 +319,7 @@ class User
                             }
                             // City
                             // Zip code 
-                            if (isset($_POST["zip_code"])) {
+                            if (isset($_POST["zip_code"]) && !empty($_POST["zip_code"])) {
                                 $zip_code = $_POST["zip_code"];
                                 if ($zip_code != $user["zip_code"]) {
                                     $update_query .= " `zip_code` = ?,";
@@ -339,9 +339,9 @@ class User
                             // Country code and Mobile 
                             if (isset($_POST["country_code"]) || isset($_POST["mobile"])) {
                                 if (isset($_POST["country_code_id"]) && !isset($_POST["mobile"])) {
-                                    echo ("please fill the mobile number");
+                                    echo ("Please fill the mobile number");
                                 } else if (!isset($_POST["country_code_id"]) && isset($_POST["mobile"])) {
-                                    echo ("please select your country code");
+                                    echo ("Please select your country code");
                                 } else if (isset($_POST["country_code_id"]) && isset($_POST["mobile"])) {
                                     // Country code
                                     $country_code_id = $_POST["country_code_id"];
@@ -362,11 +362,11 @@ class User
                             // Country code and Mobile 
                             // Password 
                             if (isset($_POST["new_password"]) || isset($_POST["confirm_password"])) {
-                                if (isset($_POST["old_password"])) {
+                                if (isset($_POST["old_password"]) && !empty($_POST["old_password"])) {
                                     if (isset($_POST["new_password"]) && !isset($_POST["confirm_password"])) {
-                                        echo ("please retype your new password");
+                                        echo ("Please retype your new password");
                                     } else if (!isset($_POST["new_password"]) && isset($_POST["confirm_password"])) {
-                                        echo ("please fill the new password");
+                                        echo ("Please fill the new password");
                                     } else if (isset($_POST["new_password"]) && isset($_POST["confirm_password"])) {
                                         $old_password = $_POST["old_password"];
                                         $new_password = $_POST["new_password"];
@@ -382,18 +382,18 @@ class User
                                                             $query_values[] = $new_password;
                                                         }
                                                     } else {
-                                                        echo ("new passwords doesn't match");
+                                                        echo ("New passwords doesn't match");
                                                     }
                                                 }
                                             } else {
-                                                echo ("new password cannot be same as old password");
+                                                echo ("New password cannot be same as old password");
                                             }
                                         } else {
-                                            echo ("old password is incorrect");
+                                            echo ("Old password is incorrect");
                                         }
                                     }
                                 } else {
-                                    echo ("please fill the old password");
+                                    echo ("Please fill the old password");
                                 }
                             }
                             // Password 
@@ -420,25 +420,25 @@ class User
                             // Refresh session 
                             echo ("success");
                         } else {
-                            echo ("please select your country");
+                            echo ("Please select your country");
                         }
                     } else {
-                        echo ("please select your country");
+                        echo ("Please select your country");
                     }
                 } else {
-                    echo ("please fill the last name");
+                    echo ("Please fill the last name");
                 }
             } else {
-                echo ("please fill the first name");
+                echo ("Please fill the first name");
             }
         } else {
-            echo ("please signin to account");
+            echo ("Please signin to account");
         }
     }
 
-    public function change_profile_picture()
+    public function update_profile_picture()
     {
-        if (isset($_SESSION["user"])) {
+        if ($this->check_session()) {
             $user = $_SESSION["user"];
             if (isset($_FILES["profile_picture"])) {
                 $image = $_FILES["profile_picture"];
@@ -455,13 +455,19 @@ class User
                         $profile_picture_num = $profile_picture_resultset->num_rows;
                         if ($profile_picture_num == 1) {
                             Database::iud("UPDATE `profile_picture` SET `profile_picture`=? WHERE `user_id`=?", [$custom_file_name, $user["id"]]);
+                            echo ("success");
                         } else if ($profile_picture_num == 0) {
                             Database::iud(
                                 "INSERT INTO `profile_picture`(`user_id`,`profile_picture`) VALUES (?,?)",
                                 [$user["id"], $custom_file_name]
                             );
+                            echo ("success");
                         }
+                    } else {
+                        echo ("Profile picture not updated");
                     }
+                } else {
+                    echo ("File type not allowed");
                 }
             }
         }
