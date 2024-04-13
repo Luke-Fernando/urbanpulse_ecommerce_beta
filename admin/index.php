@@ -21,9 +21,6 @@ if (isset($_SESSION["admin"])) {
     ?>
 
     <body>
-        <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
-            <div class="spinner"></div>
-        </div>
         <nav class="w-full h-auto bg-[var(--main-bg-high)] ">
             <section class="w-full box-border px-5 sm:px-10 mx-auto h-[60px] flex justify-between items-center">
                 <!-- logo  -->

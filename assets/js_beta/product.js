@@ -113,7 +113,6 @@ class Product {
       element.parentNode.removeChild(element);
     }
   }
-  // colors
   addColor() {
     let color = document.getElementById("color").options[document.getElementById("color").selectedIndex].text;
     let colorValue = document.getElementById("color").value;
@@ -123,8 +122,6 @@ class Product {
   removeColor(event) {
     this.removeProperty(event, this.colorsArray);
   }
-  // colors
-  // locations
   addLocations() {
     let location = document.getElementById("country").options[document.getElementById("country").selectedIndex].text;
     let locationValue = document.getElementById("country").value;
@@ -134,8 +131,6 @@ class Product {
   removeLocations(event) {
     this.removeProperty(event, this.locationsArray);
   }
-  // locations
-  // shipping costs
   addShippingCosts() {
     // {id: id, name: {country:country, value: value}, value: value}
     let country = document.getElementById("ship-country").options[document.getElementById("ship-country").selectedIndex].text;
@@ -161,9 +156,90 @@ class Product {
   removeShippingCosts(event) {
     this.removeProperty(event, this.shippingCostsArray);
   }
-  // shipping costs
 
-  addImages() {}
+  createAddedImages(id, src) {
+    const item = document.createElement("div");
+    item.classList.add("relative", "aspect-square", "flex", "justify-center", "items-center", "overflow-hidden");
+    item.id = id;
+
+    const img = document.createElement("img");
+    img.classList.add("h-auto", "max-w-full", "rounded-lg", "min-w-full", "min-h-full", "object-cover");
+    img.src = src;
+    item.appendChild(img);
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add(
+      "absolute",
+      "bottom-0",
+      "inset-x-0",
+      "flex",
+      "justify-around",
+      "items-center",
+      "w-full",
+      "h-max",
+      "bg-black/30",
+      "py-4"
+    );
+    item.appendChild(buttonContainer);
+
+    const removeButton = document.createElement("button");
+    removeButton.classList.add("text-gray-100", "hover:text-white", "transition-all", "duration-75", "ease-linear");
+    removeButton.setAttribute("data-remove-img", id);
+    buttonContainer.appendChild(removeButton);
+
+    const removeIcon = document.createElement("span");
+    removeIcon.classList.add("material-symbols-outlined", "pointer-events-none");
+    removeIcon.innerText = "delete";
+    removeButton.appendChild(removeIcon);
+
+    return item;
+  }
+
+  createImageArrayItem(id, file) {
+    console.log({
+      id: id,
+      file: file,
+    });
+    return {
+      id: id,
+      file: file,
+    };
+  }
+
+  addImages() {
+    const imageInput = document.getElementById("img-input");
+    let imageFiles = imageInput.files;
+    const imageContainer = document.getElementById("added-images");
+    for (let i = 0; i < imageFiles.length; i++) {
+      let file = imageFiles[i];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          let id = this.generateUniqueId("product-image");
+          const src = event.target.result;
+          imageContainer.appendChild(this.createAddedImages(id, src));
+          this.imagesArray.push(this.createImageArrayItem(id, file));
+          // }
+          // imageElement.src = src;
+        };
+        reader.readAsDataURL(file);
+        console.log(this.imagesArray);
+        console.log(this.imagesArray.length);
+      }
+    }
+  }
+
+  removeImages(event) {
+    if (event.target.matches("[data-remove-img]")) {
+      let itemId = event.target.getAttribute("data-remove-img");
+      let element = document.getElementById(itemId);
+      let index = this.imagesArray.findIndex((item) => item.id === itemId);
+      if (index !== -1) {
+        this.imagesArray.splice(index, 1);
+      }
+      element.parentNode.removeChild(element);
+    }
+  }
 }
 
 export default Product;

@@ -3630,6 +3630,23 @@ input:checked + .toggle-bg {
   background-color: rgb(250 202 21 / var(--tw-bg-opacity));
 }
 
+.bg-red-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 128 128 / var(--tw-bg-opacity));
+}
+
+.bg-gray-500\/10 {
+  background-color: rgb(107 114 128 / 0.1);
+}
+
+.bg-gray-500\/50 {
+  background-color: rgb(107 114 128 / 0.5);
+}
+
+.bg-gray-500\/30 {
+  background-color: rgb(107 114 128 / 0.3);
+}
+
 .bg-opacity-50 {
   --tw-bg-opacity: 0.5;
 }
@@ -4253,6 +4270,11 @@ input:checked + .toggle-bg {
   color: rgb(250 202 21 / var(--tw-text-opacity)) !important;
 }
 
+.text-\[\#1c4c5b\] {
+  --tw-text-opacity: 1;
+  color: rgb(28 76 91 / var(--tw-text-opacity));
+}
+
 .text-\[\#336699\]\/\[\.35\] {
   color: rgb(51 102 153 / .35);
 }
@@ -4782,6 +4804,8 @@ input:checked + .toggle-bg {
 .\[hostname\:port\] {
   hostname: port;
 }
+
+/* @import "../../assets/css/spinner.css"; */
 
 @media (min-width: 640px) {
   .sm\:container {
