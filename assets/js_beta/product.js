@@ -1,5 +1,6 @@
 import Connection from "./connection.js";
 import Alert from "./alert.js";
+import Spinner from "./spinners.js";
 
 class Product {
   constructor() {
@@ -238,6 +239,48 @@ class Product {
         this.imagesArray.splice(index, 1);
       }
       element.parentNode.removeChild(element);
+    }
+  }
+
+  async loadBrands() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    const categorySelect = document.getElementById("category");
+    const category = categorySelect.value;
+    const brandSelect = document.getElementById("brand");
+    const modelSelect = document.getElementById("model");
+    if (category >= 0) {
+      let values = [{ name: "category", data: category }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=load_brands");
+        brandSelect.innerHTML = response;
+        modelSelect.innerHTML = '<option value="0" selected>Pleass select your brand first</option>';
+        processLoadSpinner.removeProcessLoadSpinner();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else {
+      processLoadSpinner.removeProcessLoadSpinner();
+    }
+  }
+
+  async loadModels() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    const brandSelect = document.getElementById("brand");
+    const brand = brandSelect.value;
+    const modelSelect = document.getElementById("model");
+    if (brand >= 0) {
+      let values = [{ name: "brand", data: brand }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=load_models");
+        modelSelect.innerHTML = response;
+        processLoadSpinner.removeProcessLoadSpinner();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else {
+      processLoadSpinner.removeProcessLoadSpinner();
     }
   }
 }

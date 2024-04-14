@@ -103,8 +103,8 @@ if (isset($_SESSION["user"])) {
                 <div class="w-full sm:w-[32%] h-auto my-5">
                     <label for="category" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the category</label>
                     <select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg 
-                    focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 capitalize">
-                        <option value="0" selected>select the category</option>
+                    focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <option value="0" selected>Pleass select your category</option>
                         <?php
                         $category_resultset = Database::search("SELECT * FROM `category`", []);
                         $category_num = $category_resultset->num_rows;
@@ -122,8 +122,8 @@ if (isset($_SESSION["user"])) {
                 <div class="w-full sm:w-[32%] h-auto my-5">
                     <label for="brand" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the brand</label>
                     <select id="brand" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                        <option value="0" selected>select the brand</option>
+                block w-full p-2.5">
+                        <option value="0" selected>Pleass select your category first</option>
                     </select>
                 </div>
                 <!-- brand  -->
@@ -131,8 +131,8 @@ if (isset($_SESSION["user"])) {
                 <div class="w-full sm:w-[32%] h-auto my-5">
                     <label for="model" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the model</label>
                     <select id="model" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                        <option value="0" selected>select the model</option>
+                block w-full p-2.5">
+                        <option value="0" selected>Pleass select your brand first</option>
                     </select>
                 </div>
                 <!-- model  -->
@@ -289,7 +289,7 @@ if (isset($_SESSION["user"])) {
 
         <!-- <script type="module" src="../assets/js/addProduct.js"></script>
         <script src="../assets/js/badge.js"></script> -->
-        <script type="module" src="../assets/js_beta/index.js"></script>
+        <!-- <script type="module" src="../assets/js_beta/index.js"></script> -->
     </body>
 
     </html>

@@ -12,7 +12,6 @@ function callSpinner() {
     spinner.addPageLoadSpinner();
     document.onreadystatechange = async () => {
       if (document.readyState === "complete") {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         spinner.removePageLoadSpinner();
       }
     };
@@ -84,6 +83,8 @@ function addProduct() {
   removeTag("shipping-countries", "removeShippingCosts");
   callProductMethod("img-input", "addImages", "change");
   removeImage("added-images", "removeImages");
+  callProductMethod("category", "loadBrands", "change");
+  callProductMethod("brand", "loadModels", "change");
 }
 
 addProduct();

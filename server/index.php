@@ -42,5 +42,21 @@ if (isset($_GET["action"])) {
             // update_profile_picture 
         }
         // user 
+        // product 
+        if ($_GET["action"] == "product") {
+            require "./product.php";
+            $product = new Product();
+            // load_brands 
+            if ($_GET["process"] == "load_brands") {
+                $product->load_brands();
+            }
+            // load_brands 
+            // load_models 
+            if ($_GET["process"] == "load_models") {
+                $product->load_models();
+            }
+            // load_models 
+        }
+        // product 
     }
 }

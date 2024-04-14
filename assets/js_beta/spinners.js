@@ -54,8 +54,9 @@ class Spinner {
     body.appendChild(this.createPageLoadSpinner());
   }
 
-  removePageLoadSpinner() {
+  async removePageLoadSpinner() {
     if (this.pageLoadSpinner) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const spinner = document.getElementById("page-load-spinner");
       this.pageLoadSpinner = false;
       const body = document.querySelector("body");
@@ -73,8 +74,9 @@ class Spinner {
     }
   }
 
-  removeProcessLoadSpinner() {
+  async removeProcessLoadSpinner() {
     if (this.processLoadSpinner) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const spinner = document.getElementById("process-load-spinner");
       this.processLoadSpinner = false;
       const body = document.querySelector("body");

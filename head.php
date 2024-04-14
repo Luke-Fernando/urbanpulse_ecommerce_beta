@@ -24,7 +24,7 @@ function head($title)
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce/node_modules/flowbite/dist/flowbite.js"></script>
         <!-- <script type="module" src="../assets/js/connectDatabase" defer></script> -->
-        <script src="http://<?php echo $root ?>/urbanpulse_ecommerce/assets/js/pageLoad.js" defer></script>
+        <!-- <script src="http://<?php echo $root ?>/urbanpulse_ecommerce/assets/js/pageLoad.js" defer></script> -->
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js/sessionRefresh.js" defer></script>
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js/allProducts.js" defer></script>
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js_beta/index.js" defer></script>
