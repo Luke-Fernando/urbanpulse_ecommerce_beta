@@ -56,6 +56,21 @@ if (isset($_GET["action"])) {
                 $product->load_models();
             }
             // load_models 
+            // manage_locations_worldwide 
+            if ($_GET["process"] == "manage_locations_worldwide") {
+                $product->manage_locations_worldwide();
+            }
+            // manage_locations_worldwide 
+            // manage_locations_countries 
+            if ($_GET["process"] == "manage_locations_countries") {
+                $product->manage_locations_countries();
+            }
+            // manage_locations_countries 
+            // manage_locations_none 
+            if ($_GET["process"] == "manage_locations_none") {
+                $product->manage_locations_none();
+            }
+            // manage_locations_none 
         }
         // product 
     }

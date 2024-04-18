@@ -114,6 +114,37 @@ class Product {
       element.parentNode.removeChild(element);
     }
   }
+
+  async manageLocations() {
+    let locationSelect = document.getElementById("country");
+    if (this.locationsArray.length == 1 && this.locationsArray.some((item) => item.value == "worldwide")) {
+      let values = [{ name: "location", data: "worldwide" }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_locations_worldwide");
+        locationSelect.innerHTML = response;
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else if (this.locationsArray.length == 1 && !this.locationsArray.some((item) => item.value == "worldwide")) {
+      let countryValue = this.locationsArray[0].value;
+      let values = [{ name: "location", data: countryValue }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_locations_countries");
+        locationSelect.innerHTML = response;
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else if (this.locationsArray.length == 0) {
+      let values = [{ name: "location", data: "none" }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_locations_none");
+        locationSelect.innerHTML = response;
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
+
   addColor() {
     let color = document.getElementById("color").options[document.getElementById("color").selectedIndex].text;
     let colorValue = document.getElementById("color").value;
@@ -127,10 +158,12 @@ class Product {
     let location = document.getElementById("country").options[document.getElementById("country").selectedIndex].text;
     let locationValue = document.getElementById("country").value;
     this.addProperty("locations", this.locationsArray, "location", location, locationValue);
+    this.manageLocations();
   }
 
   removeLocations(event) {
     this.removeProperty(event, this.locationsArray);
+    this.manageLocations();
   }
   addShippingCosts() {
     // {id: id, name: {country:country, value: value}, value: value}

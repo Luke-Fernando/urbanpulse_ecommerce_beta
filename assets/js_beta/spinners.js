@@ -76,7 +76,7 @@ class Spinner {
 
   async removeProcessLoadSpinner() {
     if (this.processLoadSpinner) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const spinner = document.getElementById("process-load-spinner");
       this.processLoadSpinner = false;
       const body = document.querySelector("body");

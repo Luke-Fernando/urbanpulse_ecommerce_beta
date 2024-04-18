@@ -18,7 +18,7 @@ if (isset($_SESSION["user"])) {
         <nav class="w-full h-[75px]">
             <div class="container mx-auto h-full flex justify-center items-end">
                 <div class="w-max h-[90%]">
-                    <a href="/urbanpulse_ecommerce_beta/signin/" class="w-max h-full flex justify-center items-center no-underline">
+                    <a href="../home/" class="w-max h-full flex justify-center items-center no-underline">
                         <img src="../assets/images/logo-dark.svg" alt="UrbanPulse" class="h-full">
                     </a>
                 </div>

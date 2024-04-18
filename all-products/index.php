@@ -35,9 +35,6 @@ head($title);
 ?>
 
 <body>
-    <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
-        <div class="spinner"></div>
-    </div>
     <!--  -->
     <?php
     //

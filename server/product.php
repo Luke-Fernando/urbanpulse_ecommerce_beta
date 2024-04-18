@@ -77,11 +77,72 @@ class Product
                 } else {
                     ?>
                     <option value="0" selected>Pleass select your brand first</option>
-<?php
+                <?php
                 }
             }
         } else {
             echo ("Please signin to your account");
+        }
+    }
+
+    public function manage_locations_worldwide()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["location"]) && !empty($_POST["location"])) {
+                $location_specific = $_POST["location"];
+                if ($location_specific == "worldwide") {
+                ?>
+                    <option value="worldwide" selected>worldwide</option>
+                    <?php
+                }
+            }
+        }
+    }
+
+    public function manage_locations_countries()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["location"]) && !empty($_POST["location"])) {
+                $location_specific = $_POST["location"];
+                if ($location_specific != "worldwide" && $location_specific > 0) {
+                    $country_resultset = Database::search("SELECT * FROM `country`", []);
+                    $country_num = $country_resultset->num_rows;
+                    for ($i = 0; $i < $country_num; $i++) {
+                        $country_data = $country_resultset->fetch_assoc();
+                        if ($country_data["id"] == $location_specific) {
+                    ?>
+                            <option value="<?php echo $country_data["id"] ?>" selected><?php echo $country_data["country"] ?></option>
+                        <?php
+                        } else {
+                        ?>
+                            <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                    <?php
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function manage_locations_none()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["location"]) && !empty($_POST["location"])) {
+                $location_specific = $_POST["location"];
+                if ($location_specific != "worldwide" && $location_specific == "none") {
+                    ?>
+                    <option value="worldwide" selected>worldwide</option>
+                    <?php
+                    $country_resultset = Database::search("SELECT * FROM `country`", []);
+                    $country_num = $country_resultset->num_rows;
+                    for ($i = 0; $i < $country_num; $i++) {
+                        $country_data = $country_resultset->fetch_assoc();
+                    ?>
+                        <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+<?php
+                    }
+                }
+            }
         }
     }
 
