@@ -71,6 +71,21 @@ if (isset($_GET["action"])) {
                 $product->manage_locations_none();
             }
             // manage_locations_none 
+            // manage_shipping_type_flat 
+            if ($_GET["process"] == "manage_shipping_type_flat") {
+                $product->manage_shipping_type_flat();
+            }
+            // manage_shipping_type_flat 
+            // manage_shipping_type_custom 
+            if ($_GET["process"] == "manage_shipping_type_custom") {
+                $product->manage_shipping_type_custom();
+            }
+            // manage_shipping_type_custom 
+            // manage_shipping_type_none 
+            if ($_GET["process"] == "manage_shipping_type_none") {
+                $product->manage_shipping_type_none();
+            }
+            // manage_shipping_type_none 
         }
         // product 
     }

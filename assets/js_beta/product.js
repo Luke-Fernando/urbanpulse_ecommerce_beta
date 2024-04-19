@@ -116,7 +116,7 @@ class Product {
   }
 
   async manageLocations() {
-    let locationSelect = document.getElementById("country");
+    const locationSelect = document.getElementById("country");
     if (this.locationsArray.length == 1 && this.locationsArray.some((item) => item.value == "worldwide")) {
       let values = [{ name: "location", data: "worldwide" }];
       try {
@@ -141,6 +141,52 @@ class Product {
         locationSelect.innerHTML = response;
       } catch (error) {
         console.error("Error:", error);
+      }
+    }
+  }
+
+  async manageShippingTypes() {
+    let spinner = new Spinner();
+    spinner.addProcessLoadSpinner();
+    const shippingTypeSelect = document.getElementById("shipping-type");
+    let shippingTypeValue = shippingTypeSelect.value;
+    const shippingCountriesSelect = document.getElementById("ship-country");
+    const shippingCountries = document.getElementById("shipping-countries");
+    if (shippingTypeValue != 0 && shippingTypeValue == 1) {
+      let values = [{ name: "shipping_type", data: "flat" }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_flat");
+        shippingCountriesSelect.innerHTML = response;
+        shippingCountries.replaceChildren();
+        this.shippingCostsArray = [];
+        spinner.removeProcessLoadSpinner();
+      } catch (error) {
+        console.error("Error:", error);
+        spinner.removeProcessLoadSpinner();
+      }
+    } else if (shippingTypeValue != 0 && shippingTypeValue == 2) {
+      let values = [{ name: "shipping_type", data: "custom" }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_custom");
+        shippingCountriesSelect.innerHTML = response;
+        shippingCountries.replaceChildren();
+        this.shippingCostsArray = [];
+        spinner.removeProcessLoadSpinner();
+      } catch (error) {
+        console.error("Error:", error);
+        spinner.removeProcessLoadSpinner();
+      }
+    } else if (shippingTypeValue == 0) {
+      let values = [{ name: "shipping_type", data: "none" }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_none");
+        shippingCountriesSelect.innerHTML = response;
+        shippingCountries.replaceChildren();
+        this.shippingCostsArray = [];
+        spinner.removeProcessLoadSpinner();
+      } catch (error) {
+        console.error("Error:", error);
+        spinner.removeProcessLoadSpinner();
       }
     }
   }

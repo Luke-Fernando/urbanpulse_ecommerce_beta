@@ -141,6 +141,7 @@ if (isset($_SESSION["user"])) {
                     <label for="color" class="block w-full mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select colors</label>
                     <select id="color" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block flex-1 p-2.5 capitalize">
+                        <option value="0">Select your color variations</option>
                         <?php
                         $color_resultset = Database::search("SELECT * FROM `color`", []);
                         $color_num = $color_resultset->num_rows;
@@ -240,18 +241,8 @@ if (isset($_SESSION["user"])) {
                     <div class="w-[40%] h-auto">
                         <label for="ship-country" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">country</label>
                         <select id="ship-country" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                            <option value="0">worldwide</option>
-                            <?php
-                            $country_resultset = Database::search("SELECT * FROM `country`", []);
-                            $country_num = $country_resultset->num_rows;
-                            for ($i = 0; $i < $country_num; $i++) {
-                                $country_data = $country_resultset->fetch_assoc();
-                            ?>
-                                <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
-                            <?php
-                            }
-                            ?>
+                block w-full p-2.5">
+                            <option value="0">Please select the shipping type first</option>
                         </select>
                     </div>
                     <div class="flex-1 h-auto">

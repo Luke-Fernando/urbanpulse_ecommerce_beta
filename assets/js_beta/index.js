@@ -85,6 +85,7 @@ function addProduct() {
   removeImage("added-images", "removeImages");
   callProductMethod("category", "loadBrands", "change");
   callProductMethod("brand", "loadModels", "change");
+  callProductMethod("shipping-type", "manageShippingTypes", "change");
 }
 
 addProduct();

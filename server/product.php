@@ -139,8 +139,58 @@ class Product
                         $country_data = $country_resultset->fetch_assoc();
                     ?>
                         <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
-<?php
+                    <?php
                     }
+                }
+            }
+        }
+    }
+
+    public function manage_shipping_type_flat()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["shipping_type"]) && !empty($_POST["shipping_type"])) {
+                $shipping_type = $_POST["shipping_type"];
+                if ($shipping_type == "flat") {
+                    ?>
+                    <option value="worldwide">worldwide</option>
+                <?php
+                }
+            }
+        }
+    }
+
+    public function manage_shipping_type_custom()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["shipping_type"]) && !empty($_POST["shipping_type"])) {
+                $shipping_type = $_POST["shipping_type"];
+                if ($shipping_type == "custom") {
+                ?>
+                    <option value="worldwide">worldwide</option>
+                    <?php
+                    $country_resultset = Database::search("SELECT * FROM `country`", []);
+                    $country_num = $country_resultset->num_rows;
+                    for ($i = 0; $i < $country_num; $i++) {
+                        $country_data = $country_resultset->fetch_assoc();
+                    ?>
+                        <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                    <?php
+                    }
+                }
+            }
+        }
+    }
+
+    public function manage_shipping_type_none()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["shipping_type"]) && !empty($_POST["shipping_type"])) {
+                $shipping_type = $_POST["shipping_type"];
+                if ($shipping_type == "none") {
+                    ?>
+                    <option value="0">Please select the shipping type first</option>
+<?php
                 }
             }
         }
