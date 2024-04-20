@@ -116,6 +116,7 @@ class Product {
   }
 
   async manageLocations() {
+    this.manageShippingTypes();
     const locationSelect = document.getElementById("country");
     if (this.locationsArray.length == 1 && this.locationsArray.some((item) => item.value == "worldwide")) {
       let values = [{ name: "location", data: "worldwide" }];
@@ -165,7 +166,10 @@ class Product {
         spinner.removeProcessLoadSpinner();
       }
     } else if (shippingTypeValue != 0 && shippingTypeValue == 2) {
-      let values = [{ name: "shipping_type", data: "custom" }];
+      let values = [
+        { name: "shipping_type", data: "custom" },
+        { name: "shipping_locations", data: JSON.stringify(this.locationsArray) },
+      ];
       try {
         let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_custom");
         shippingCountriesSelect.innerHTML = response;
@@ -360,6 +364,112 @@ class Product {
       }
     } else {
       processLoadSpinner.removeProcessLoadSpinner();
+    }
+  }
+
+  async listProduct() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    let title = document.getElementById("title").value;
+    let description = document.getElementById("description").value;
+    let category = document.getElementById("category").value;
+    let brand = document.getElementById("brand").value;
+    let model = document.getElementById("model").value;
+    let condition = document.getElementById("condition").value;
+    let price = document.getElementById("price").value;
+    let quantity = document.getElementById("quantity").value;
+    let shippingType = document.getElementById("shipping-type").value;
+    let alert = new Alert("success");
+    if (this.imagesArray.length < 3) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add at least 3 images");
+      });
+      console.log(JSON.stringify(this.locationsArray));
+      console.log(this.locationsArray);
+    } else if (title == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your title");
+      });
+    } else if (description == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your description");
+      });
+    } else if (category == 0) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please select your category");
+      });
+    } else if (brand == 0) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please select your brand");
+      });
+    } else if (model == 0) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please select your model");
+      });
+    } else if (this.colorsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add at least 1 color");
+      });
+    } else if (condition == 0) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please select your condition");
+      });
+    } else if (price == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your price");
+      });
+    } else if (quantity == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your quantity");
+      });
+    } else if (this.locationsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your shipping location(s)");
+      });
+    } else if (shippingType == 0) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please select your shipping type");
+      });
+    } else if (this.shippingCostsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your shipping cost(s)");
+      });
+    } else {
+      let values = [
+        { name: "title", data: title },
+        { name: "description", data: description },
+        { name: "category", data: category },
+        { name: "brand", data: brand },
+        { name: "model", data: model },
+        { name: "colors", data: JSON.stringify(this.colorsArray) },
+        { name: "condition", data: condition },
+        { name: "price", data: price },
+        { name: "quantity", data: quantity },
+        { name: "shipping_locations", data: JSON.stringify(this.locationsArray) },
+        { name: "shipping_type", data: shippingType },
+        { name: "shipping_cost", data: JSON.stringify(this.shippingCostsArray) },
+      ];
+      for (let image of this.imagesArray) {
+        let imageNum = this.imagesArray.indexOf(image);
+        values.push({ name: `image-${imageNum}`, data: image.file });
+        console.log(image.file);
+      }
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=list_product");
+        if (response == "success") {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.success("Product listed successfully", () => {
+              window.location.reload();
+            });
+          });
+        } else {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.error(response);
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   }
 }

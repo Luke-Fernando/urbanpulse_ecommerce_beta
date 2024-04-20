@@ -153,8 +153,8 @@ class Product
                 $shipping_type = $_POST["shipping_type"];
                 if ($shipping_type == "flat") {
                     ?>
-                    <option value="worldwide">worldwide</option>
-                <?php
+                    <option value="general">General</option>
+                    <?php
                 }
             }
         }
@@ -166,16 +166,51 @@ class Product
             if (isset($_POST["shipping_type"]) && !empty($_POST["shipping_type"])) {
                 $shipping_type = $_POST["shipping_type"];
                 if ($shipping_type == "custom") {
-                ?>
-                    <option value="worldwide">worldwide</option>
-                    <?php
-                    $country_resultset = Database::search("SELECT * FROM `country`", []);
-                    $country_num = $country_resultset->num_rows;
-                    for ($i = 0; $i < $country_num; $i++) {
-                        $country_data = $country_resultset->fetch_assoc();
+                    if (isset($_POST["shipping_locations"])) {
+                        if (sizeof(json_decode($_POST["shipping_locations"])) > 0) {
+                            $shipping_locations = json_decode($_POST["shipping_locations"]);
+                            $if_worldwide = false;
+                            foreach ($shipping_locations as $item) {
+                                if ($item->value == "worldwide") {
+                                    $if_worldwide = true;
+                                    break;
+                                }
+                            }
+                            if ($if_worldwide) {
                     ?>
-                        <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                                <option value="general">General</option>
+                                <?php
+                                $country_resultset = Database::search("SELECT * FROM `country`", []);
+                                $country_num = $country_resultset->num_rows;
+                                for ($i = 0; $i < $country_num; $i++) {
+                                    $country_data = $country_resultset->fetch_assoc();
+                                ?>
+                                    <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                                <?php
+                                }
+                            } else {
+                                ?>
+                                <option value="general">General</option>
+                                <?php
+                                $country_resultset = Database::search("SELECT * FROM `country`", []);
+                                $country_num = $country_resultset->num_rows;
+                                for ($i = 0; $i < $country_num; $i++) {
+                                    $country_data = $country_resultset->fetch_assoc();
+                                    foreach ($shipping_locations as $item) {
+                                        if ($item->value == $country_data["id"]) {
+                                ?>
+                                            <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                            <?php
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            ?>
+                            <option value="0">Please add your shipping location(s)</option>
                     <?php
+                        }
                     }
                 }
             }
@@ -199,22 +234,102 @@ class Product
     public function list_product()
     {
         if ($this->check_session()) {
-            if (isset($_POST["title"]) && !empty($_POST["title"])) {
-                if (isset($_POST["description"]) && !empty($_POST["description"])) {
-                    if (isset($_POST["price"]) && !empty($_POST["price"])) {
-                        if (isset($_POST["quantity"]) && !empty($_POST["quantity"])) {
-                            echo ("success");
+            if (isset($_FILES)) {
+                if (count($_FILES)) {
+                    if (isset($_POST["title"]) && !empty($_POST["title"])) {
+                        if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                            if (isset($_POST["category"]) && !empty($_POST["category"])) {
+                                if ($_POST["category"] > 0) {
+                                    if (isset($_POST["brand"]) && !empty($_POST["brand"])) {
+                                        if ($_POST["brand"] > 0) {
+                                            if (isset($_POST["model"]) && !empty($_POST["model"])) {
+                                                if ($_POST["model"] > 0) {
+                                                    if (isset($_POST["colors"])) {
+                                                        if (sizeof(json_decode($_POST["colors"])) > 0) {
+                                                            if (isset($_POST["condition"]) && !empty($_POST["condition"])) {
+                                                                if ($_POST["condition"] > 0) {
+                                                                    if (isset($_POST["price"]) && !empty($_POST["price"])) {
+                                                                        if (ctype_digit($_POST["price"])) {
+                                                                            if ($_POST["price"] > 0) {
+                                                                                if (isset($_POST["quantity"]) && !empty($_POST["quantity"])) {
+                                                                                    if (ctype_digit($_POST["quantity"])) {
+                                                                                        if ($_POST["quantity"] > 0) {
+                                                                                            if (isset($_POST["shipping_locations"])) {
+                                                                                                if (sizeof(json_decode($_POST["shipping_locations"])) > 0) {
+                                                                                                    if (isset($_POST["shipping_type"]) && !empty($_POST["shipping_type"])) {
+                                                                                                        if ($_POST["shipping_type"] > 0) {
+                                                                                                            // list
+                                                                                                        } else {
+                                                                                                            echo ("Please select your shipping type");
+                                                                                                        }
+                                                                                                    } else {
+                                                                                                        echo ("Please select your shipping type");
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    echo ("Please add at least 1 location");
+                                                                                                }
+                                                                                            } else {
+                                                                                                echo ("Please add your location(s)");
+                                                                                            }
+                                                                                        } else {
+                                                                                            echo ("Please enter a valid quantity");
+                                                                                        }
+                                                                                    } else {
+                                                                                        echo ("Please enter a valid quantity");
+                                                                                    }
+                                                                                } else {
+                                                                                    echo ("Please add your quantity");
+                                                                                }
+                                                                            } else {
+                                                                                echo ("Please enter a valid price");
+                                                                            }
+                                                                        } else {
+                                                                            echo ("Please enter a valid price");
+                                                                        }
+                                                                    } else {
+                                                                        echo ("Please add your price");
+                                                                    }
+                                                                } else {
+                                                                    echo ("Please select your condition");
+                                                                }
+                                                            } else {
+                                                                echo ("Please select your condition");
+                                                            }
+                                                        } else {
+                                                            echo ("Please add at least 1 color");
+                                                        }
+                                                    } else {
+                                                        echo ("Please add your color(s)");
+                                                    }
+                                                } else {
+                                                    echo ("Please select your model");
+                                                }
+                                            } else {
+                                                echo ("Please select your model");
+                                            }
+                                        } else {
+                                            echo ("Please select your brand");
+                                        }
+                                    } else {
+                                        echo ("Please select your brand");
+                                    }
+                                } else {
+                                    echo ("Please select your category");
+                                }
+                            } else {
+                                echo ("Please select your category");
+                            }
                         } else {
-                            echo ("Please add the quantity");
+                            echo ("Please add your description");
                         }
                     } else {
-                        echo ("Please add the price");
+                        echo ("Please add your title");
                     }
                 } else {
-                    echo ("Please fill the description");
+                    echo ("Please add at least 3 images");
                 }
             } else {
-                echo ("Please fill the title");
+                echo ("Please add at least 3 images");
             }
         } else {
             echo ("Please signin to your account");

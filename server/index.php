@@ -86,6 +86,11 @@ if (isset($_GET["action"])) {
                 $product->manage_shipping_type_none();
             }
             // manage_shipping_type_none 
+            // list_product 
+            if ($_GET["process"] == "list_product") {
+                $product->list_product();
+            }
+            // list_product 
         }
         // product 
     }

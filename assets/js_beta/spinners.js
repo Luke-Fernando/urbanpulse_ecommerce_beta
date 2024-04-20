@@ -31,7 +31,7 @@ class Spinner {
   createProcessLoadSpinner() {
     const item = document.createElement("div");
     item.id = "process-load-spinner";
-    item.classList.add("fixed", "w-screen", "h-screen", "top-0", "left-0", "bg-gray-500/30", "z-50", "flex", "justify-center", "items-center");
+    item.classList.add("fixed", "w-screen", "h-screen", "top-0", "left-0", "bg-white/50", "z-50", "flex", "justify-center", "items-center");
 
     const spinner = document.createElement("div");
     spinner.classList.add("lds-ripple");
@@ -74,7 +74,7 @@ class Spinner {
     }
   }
 
-  async removeProcessLoadSpinner() {
+  async removeProcessLoadSpinner(callback = null) {
     if (this.processLoadSpinner) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const spinner = document.getElementById("process-load-spinner");
@@ -82,6 +82,9 @@ class Spinner {
       const body = document.querySelector("body");
       body.removeChild(spinner);
       body.style.overflow = "auto";
+      if (callback && typeof callback === "function") {
+        callback();
+      }
     }
   }
 }

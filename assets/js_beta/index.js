@@ -86,6 +86,7 @@ function addProduct() {
   callProductMethod("category", "loadBrands", "change");
   callProductMethod("brand", "loadModels", "change");
   callProductMethod("shipping-type", "manageShippingTypes", "change");
+  callProductMethod("list-item-btn", "listProduct");
 }
 
 addProduct();

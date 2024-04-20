@@ -168,8 +168,8 @@ if (isset($_SESSION["user"])) {
                 <div class="w-full sm:w-[49%] h-auto my-5">
                     <label for="condition" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the condition</label>
                     <select id="condition" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                        <option value="0" selected>select the condition</option>
+                block w-full p-2.5">
+                        <option value="0" selected>Select the condition</option>
                         <?php
                         $condition_resultset = Database::search("SELECT * FROM `condition`", []);
                         $condition_num = $condition_resultset->num_rows;
