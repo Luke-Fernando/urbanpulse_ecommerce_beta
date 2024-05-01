@@ -384,8 +384,8 @@ class Product {
       processLoadSpinner.removeProcessLoadSpinner(() => {
         alert.error("Please add at least 3 images");
       });
-      console.log(JSON.stringify(this.locationsArray));
-      console.log(this.locationsArray);
+      console.log(JSON.stringify(this.shippingCostsArray));
+      console.log(this.shippingCostsArray);
     } else if (title == "") {
       processLoadSpinner.removeProcessLoadSpinner(() => {
         alert.error("Please add your title");

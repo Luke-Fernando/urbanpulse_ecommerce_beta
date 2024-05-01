@@ -1,26 +1,6 @@
 import Product from "./product.js";
-import Spinner from "./spinners.js";
 import User from "./user.js";
 
-function callSpinner() {
-  let spinner;
-
-  function pageLoadSpinner() {
-    if (spinner == null && !(spinner instanceof Spinner)) {
-      spinner = new Spinner();
-    }
-    spinner.addPageLoadSpinner();
-    document.onreadystatechange = async () => {
-      if (document.readyState === "complete") {
-        spinner.removePageLoadSpinner();
-      }
-    };
-  }
-
-  pageLoadSpinner();
-}
-
-callSpinner();
 
 function callUserMethod(triggerId, method, event = "click") {
   let user = new User();
