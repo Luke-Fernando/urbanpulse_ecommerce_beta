@@ -124,5 +124,21 @@ if (isset($_GET["action"])) {
             // increase_cart_quantity 
         }
         // cart
+        // wishlist
+        if ($_GET["action"] == "wishlist") {
+            require "./wishlist.php";
+            $wishlist = new Wishlist();
+            // add_to_wishlist 
+            if ($_GET["process"] == "add_to_wishlist") {
+                $wishlist->add_to_wishlist();
+            }
+            // add_to_wishlist 
+            // remove_from_wishlist 
+            if ($_GET["process"] == "remove_from_wishlist") {
+                $wishlist->remove_from_wishlist();
+            }
+            // remove_from_wishlist 
+        }
+        // cart
     }
 }

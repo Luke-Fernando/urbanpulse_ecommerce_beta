@@ -29,9 +29,9 @@ if (isset($_SESSION["user"])) {
         if ($wishlist_num != 0) {
         ?>
             <div class="container px-3 sm:px-0 mx-auto mt-5 flex flex-col justify-start items-center">
-                <!-- cart  -->
+                <!-- wishlist  -->
                 <section class="w-full">
-                    <!-- cart item  -->
+                    <!-- wishlist item  -->
                     <?php
                     for ($i = 0; $i < $wishlist_num; $i++) {
                         $wishlist_data = $wishlist_resultset->fetch_assoc();
@@ -42,29 +42,26 @@ if (isset($_SESSION["user"])) {
                         $condition_resultset = Database::search("SELECT * FROM `condition` WHERE id=?", [$product_data["condition_id"]]);
                         $condition_data = $condition_resultset->fetch_assoc();
                     ?>
-                        <div class="w-full flex flex-row justify-start items-start mb-5 border border-l-0 border-r-0 p-4">
+                        <div data-wishlist-item="<?php echo $wishlist_data["id"]; ?>" class="w-full flex flex-row justify-start items-start mb-5 border border-l-0 border-r-0 p-4">
                             <!-- image  -->
-                            <a href="<?php echo "productPage.php?id=" . $product_data["id"] . "&clicked=true"; ?>" class="flex justify-center items-center overflow-hidden h-24 sm:h-36 aspect-square">
+                            <a href="<?php echo "../product/?id=" . $product_data["id"] . "&clicked=true"; ?>" class="flex justify-center items-center overflow-hidden h-24 sm:h-36 aspect-square">
                                 <img src="../assets/images/products/<?php echo $product_image_data["product_image"]; ?>" alt="" class="min-h-full min-w-full object-cover">
                             </a>
                             <!-- image  -->
                             <!-- title  -->
                             <div class="flex-1 flex flex-col justify-start items-start h-auto px-4 pt-0 sm:pt-3">
-                                <a href="<?php echo "productPage.php?id=" . $product_data["id"] . "&clicked=true"; ?>" class="font-fm-inter text-gray-800 text-sm sm:text-base"><?php echo $product_data["title"]; ?></a>
+                                <a href="<?php echo "../product/?id=" . $product_data["id"] . "&clicked=true"; ?>" class="font-fm-inter text-gray-800 
+                                text-sm sm:text-base"><?php echo $product_data["title"]; ?></a>
                                 <p class="font-fm-inter text-gray-500 text-xs capitalize mt-1">condition: <span><?php echo $condition_data["condition"]; ?></span></p>
                                 <p class="font-fm-inter text-gray-500 text-xs capitalize mt-1"><span><?php echo $product_data["qty"]; ?></span> items available</p>
                                 <p class="font-fm-inter text-sm font-medium text-[var(--main-bg-high)] mt-3 mb-2">$<?php echo $product_data["price"]; ?></p>
                             </div>
                             <!-- title  -->
                             <!-- remove  -->
-                            <div class="h-24 flex flex-col justify-center items-center w-max">
-                                <a href="<?php echo "productPage.php?id=" . $product_data["id"] . "&clicked=true"; ?>" title="Buy Now" class="my-2 flex justify-center items-center text-[var(--main-bg-low)] hover:text-[var(--main-bg-high)] transition-all duration-100 ease-linear">
-                                    <span class="material-symbols-outlined text-inherit !text-xl sm:!text-2xl">
-                                        move_item
-                                    </span>
-                                </a>
-                                <button onclick="removeFromWishlist(<?php echo $product_data['id'] ?>, <?php echo $wishlist_data['id'] ?>);" class="my-2 flex justify-center items-center text-[var(--main-bg-low)] hover:text-[var(--main-bg-high)] transition-all duration-100 ease-linear">
-                                    <span class="material-symbols-outlined text-inherit !text-xl sm:!text-2xl">
+                            <div class="h-max flex flex-col justify-center items-center w-max">
+                                <button data-wishlist-delete="<?php echo $wishlist_data["id"]; ?>" class="my-2 flex justify-center items-center 
+                                text-[var(--main-bg-low)] hover:text-[var(--main-bg-high)] transition-all duration-100 ease-linear">
+                                    <span class="material-symbols-outlined text-inherit !text-2xl sm:!text-3xl pointer-events-none">
                                         delete
                                     </span>
                                 </button>
@@ -74,9 +71,9 @@ if (isset($_SESSION["user"])) {
                     <?php
                     }
                     ?>
-                    <!-- cart item  -->
+                    <!-- wishlist item  -->
                 </section>
-                <!-- cart  -->
+                <!-- wishlist  -->
             </div>
         <?php
         } else {
@@ -90,7 +87,6 @@ if (isset($_SESSION["user"])) {
         }
         ?>
 
-        <script type="module" src="../assets/js/wishlist.js"></script>
     </body>
 
     </html>

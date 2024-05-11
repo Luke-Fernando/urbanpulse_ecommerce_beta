@@ -1,6 +1,7 @@
 import Cart from "./cart.js";
 import Product from "./product.js";
 import User from "./user.js";
+import Wishlist from "./wishlist.js";
 
 
 function callUserMethod(triggerId, method, event = "click") {
@@ -99,3 +100,27 @@ function cart() {
 }
 
 cart();
+
+
+function wishlist() {
+  let wishlist;
+
+  function callWishlistMethod(triggerId, method, event = "click") {
+    let trigger = document.querySelector(triggerId);
+    if (trigger != null) {
+      trigger.addEventListener(event, (e) => {
+        if (wishlist != null || wishlist instanceof Wishlist) {
+          wishlist[method](e);
+        } else {
+          wishlist = new Wishlist();
+          wishlist[method](e);
+        }
+      });
+    }
+  }
+
+  callWishlistMethod("#add-to-wishlist-btn", "addToWishlist");
+  callWishlistMethod("[data-wishlist-delete]", "removeFromWishlist");
+}
+
+wishlist();

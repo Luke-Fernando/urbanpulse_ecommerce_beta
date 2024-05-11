@@ -582,8 +582,6 @@ if (isset($_GET["id"])) {
         <script src="../assets/js/changeProductImg.js"></script>
         <script src="../assets/js/setQty.js"></script>
         <script src="../assets/js/scrollProducts.js"></script>
-        <script type="module" src="../assets/js/addToWishlist.js"></script>
-        <script type="module" src="../assets/js/wishlist.js"></script>
         <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
         <script type="module" src="../assets/js/payment.js"></script>
     </body>
