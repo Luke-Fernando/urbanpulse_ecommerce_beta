@@ -90,8 +90,39 @@ if (isset($_GET["action"])) {
             if ($_GET["process"] == "list_product") {
                 $product->list_product();
             }
-            // list_product 
+            // list_product
         }
         // product 
+        // cart
+        if ($_GET["action"] == "cart") {
+            require "./cart.php";
+            $cart = new Cart();
+            // add_to_cart 
+            if ($_GET["process"] == "add_to_cart") {
+                $cart->add_to_cart();
+            }
+            // add_to_cart 
+            // remove_from_cart 
+            if ($_GET["process"] == "remove_from_cart") {
+                $cart->remove_from_cart();
+            }
+            // remove_from_cart 
+            // cart_to_wishlist 
+            if ($_GET["process"] == "cart_to_wishlist") {
+                $cart->cart_to_wishlist();
+            }
+            // cart_to_wishlist 
+            // decrease_cart_quantity 
+            if ($_GET["process"] == "decrease_cart_quantity") {
+                $cart->decrease_cart_quantity();
+            }
+            // decrease_cart_quantity 
+            // increase_cart_quantity 
+            if ($_GET["process"] == "increase_cart_quantity") {
+                $cart->increase_cart_quantity();
+            }
+            // increase_cart_quantity 
+        }
+        // cart
     }
 }

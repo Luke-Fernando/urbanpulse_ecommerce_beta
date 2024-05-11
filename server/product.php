@@ -7,14 +7,14 @@ class Product
     {
     }
 
-    private function get_current_datetime()
+    public function get_current_datetime()
     {
         date_default_timezone_set('Asia/Colombo');
         $current_datetime = date('Y-m-d H:i:s');
         return $current_datetime;
     }
 
-    private function check_session()
+    public function check_session()
     {
         if (isset($_SESSION["user"])) {
             return true;

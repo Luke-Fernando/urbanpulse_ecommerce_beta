@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../src/php/connection.php";
+require "../server/connection.php";
 require "../navbar.php";
 require "../head.php";
 require "../components/customSelect.php";
@@ -201,34 +201,12 @@ if (isset($_GET["id"])) {
                         <p class="font-fm-inter text-2xl sm:text-3xl lg:text-4xl text-[var(--active-bg)]">$<?php echo $product_data["price"]; ?></p>
                     </div>
                     <div class="w-1/2">
-                        <button data-buy-now="<?php echo $product_id; ?>" id="buy-now" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 
+                        <button data-buy-now="<?php echo $product_id; ?>" id="buy-now-btn" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 
                 ease-linear hover:bg-[var(--main-bg-low)] 
                     font-medium text-[15px] w-full py-2 capitalize font-fm-inter">buy now</button>
-                        <?php
-                        if (isset($user)) {
-                            $cart_resultset = Database::search("SELECT * FROM cart WHERE product_id=?", [$product_id]);
-                            $cart_num = $cart_resultset->num_rows;
-                            if ($cart_num == 1) {
-                                $cart_data = $cart_resultset->fetch_assoc();
-                        ?>
-                                <button onclick="removeFromCart(<?php echo $product_id; ?>,<?php echo $cart_data['id']; ?>);" id="buy-now" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                        font-medium text-[15px] w-full py-2 capitalize font-fm-inter mt-3">remove from cart</button>
-                            <?php
-                            } else {
-                            ?>
-                                <button onclick="addToCart(<?php echo $product_data['id'] ?>,event);" id="buy-now" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
+                        <button id="add-to-cart-btn" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
                         font-medium text-[15px] w-full py-2 capitalize font-fm-inter mt-3">add to cart</button>
-                            <?php
-                            }
-                        } else {
-                            ?>
-                            <button onclick="addToCart(<?php echo $product_data['id'] ?>,event);" id="buy-now" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                        font-medium text-[15px] w-full py-2 capitalize font-fm-inter mt-3">add to cart</button>
-
-                        <?php
-                        }
-                        ?>
-                        <button onclick="addToWishlist(<?php echo $product_data['id']; ?>)" id="buy-now" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
+                        <button id="add-to-wishlist-btn" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
                         font-medium text-[15px] w-full py-2 capitalize font-fm-inter mt-3">add to wishlist</button>
 
                     </div>
@@ -604,9 +582,7 @@ if (isset($_GET["id"])) {
         <script src="../assets/js/changeProductImg.js"></script>
         <script src="../assets/js/setQty.js"></script>
         <script src="../assets/js/scrollProducts.js"></script>
-        <script type="module" src="../assets/js/addToCart.js"></script>
         <script type="module" src="../assets/js/addToWishlist.js"></script>
-        <script type="module" src="../assets/js/cart.js"></script>
         <script type="module" src="../assets/js/wishlist.js"></script>
         <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
         <script type="module" src="../assets/js/payment.js"></script>

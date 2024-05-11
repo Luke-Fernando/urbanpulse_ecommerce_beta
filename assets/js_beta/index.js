@@ -1,3 +1,4 @@
+import Cart from "./cart.js";
 import Product from "./product.js";
 import User from "./user.js";
 
@@ -67,6 +68,34 @@ function addProduct() {
   callProductMethod("brand", "loadModels", "change");
   callProductMethod("shipping-type", "manageShippingTypes", "change");
   callProductMethod("list-item-btn", "listProduct");
+  callProductMethod("add-to-cart", "addToCart");
 }
 
 addProduct();
+
+
+function cart() {
+  let cart;
+
+  function callCartMethod(triggerId, method, event = "click") {
+    let trigger = document.querySelector(triggerId);
+    if (trigger != null) {
+      trigger.addEventListener(event, (e) => {
+        if (cart != null || cart instanceof Cart) {
+          cart[method](e);
+        } else {
+          cart = new Cart();
+          cart[method](e);
+        }
+      });
+    }
+  }
+
+  callCartMethod("#add-to-cart-btn", "addToCart");
+  callCartMethod("[data-cart-delete]", "removeFromCart");
+  callCartMethod("[data-cart-wishlist]", "cartToWishlist");
+  callCartMethod("[data-cart-decrease]", "decreaseCartQuantity");
+  callCartMethod("[data-cart-increase]", "increaseCartQuantity");
+}
+
+cart();

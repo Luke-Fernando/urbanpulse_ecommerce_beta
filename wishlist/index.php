@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../src/php/connection.php";
+require "../server/connection.php";
 require "../head.php";
 require "../navbar.php";
 require "../components/customSelect.php";

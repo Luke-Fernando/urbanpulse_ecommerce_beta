@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../src/php/connection.php";
+require "../server/connection.php";
 require "../head.php";
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
