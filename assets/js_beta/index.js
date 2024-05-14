@@ -25,6 +25,7 @@ callUserMethod("update-profile-picture-btn", "updateProfilePicture", "change");
 function addProduct() {
   let product;
 
+  // add product 
   function callProductMethod(triggerId, method, event = "click") {
     let trigger = document.getElementById(triggerId);
     if (trigger != null) {
@@ -56,7 +57,25 @@ function addProduct() {
       });
     }
   }
+  // add product 
 
+  // update product
+  function initializeData(triggerId) {
+    let trigger = document.querySelector(triggerId);
+    if (trigger != null) {
+      document.addEventListener("DOMContentLoaded", (e) => {
+        if (product != null || product instanceof Product) {
+          product.loadProductData(e);
+        } else {
+          product = new Product();
+          product.loadProductData(e);
+        }
+      });
+    }
+  }
+  // update product
+
+  // add product 
   callProductMethod("add-color-btn", "addColor");
   callProductMethod("add-location-btn", "addLocations");
   callProductMethod("add-country-btn", "addShippingCosts");
@@ -70,6 +89,11 @@ function addProduct() {
   callProductMethod("shipping-type", "manageShippingTypes", "change");
   callProductMethod("list-item-btn", "listProduct");
   callProductMethod("add-to-cart", "addToCart");
+  // add product 
+
+  // update product
+  initializeData("#update-product");
+  // update product
 }
 
 addProduct();
@@ -124,3 +148,41 @@ function wishlist() {
 }
 
 wishlist();
+
+
+function updateProduct() {
+  let product;
+
+  function initializeData(triggerId) {
+    let trigger = document.querySelector(triggerId);
+    if (trigger != null) {
+      document.addEventListener("DOMContentLoaded", (e) => {
+        if (product != null || product instanceof Product) {
+          product.loadProductData(e);
+        } else {
+          product = new Product();
+          product.loadProductData(e);
+        }
+      });
+    }
+  }
+
+  function callUpdateProductMethod(triggerId, method, event = "click") {
+    let trigger = document.querySelector(triggerId);
+    if (trigger != null) {
+      trigger.addEventListener(event, (e) => {
+        if (product != null || product instanceof Product) {
+          product[method](e);
+        } else {
+          product = new Product();
+          product[method](e);
+        }
+      });
+    }
+  }
+
+  initializeData("#update-product");
+  // callUpdateProductMethod("#update-product", "loadProductData", "DOMContentLoaded");
+}
+
+// updateProduct();

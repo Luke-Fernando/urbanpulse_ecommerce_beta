@@ -44,7 +44,7 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-base sm:text-lg xl:text-xl font-bold text-gray-900 dark:text-white">$<?php echo $product_data["price"]; ?></span>
-                        <a href="<?php echo "updateProduct.php?id=" . $product_data["id"]; ?>" title="Edit Product" class="flex justify-center items-center text-white bg-[var(--main-bg-high)] hover:bg-[var(--main-bg-low)] transition-all duration-100 ease-linear focus:outline-none font-medium rounded-lg px-2 sm:px-3 py-1 text-center capitalize font-fm-inter">
+                        <a href="<?php echo "../update-product/?id=" . $product_data["id"]; ?>" title="Edit Product" class="flex justify-center items-center text-white bg-[var(--main-bg-high)] hover:bg-[var(--main-bg-low)] transition-all duration-100 ease-linear focus:outline-none font-medium rounded-lg px-2 sm:px-3 py-1 text-center capitalize font-fm-inter">
                             <span class="material-symbols-outlined !text-sm sm:!text-base">
                                 edit
                             </span>

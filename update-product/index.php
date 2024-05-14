@@ -6,14 +6,32 @@ require "../components/InputElements.php";
 if (isset($_SESSION["user"])) {
     if (isset($_GET["id"])) {
         $product_id = $_GET["id"];
-        // $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$product_id]);
-        // $product_data = $product_resultset->fetch_assoc();
-        // $product_title = $product_data["title"];
-        // $description = $product_data["description"];
-        // $condition = $product_data["condition_id"];
-        // $price = $product_data["price"];
-        // $quantity = $product_data["qty"];
-        // $status = $product_data["status_id"];
+        $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$product_id]);
+        $product_data = $product_resultset->fetch_assoc();
+        $product_title = $product_data["title"];
+        $description = $product_data["description"];
+        $condition_id = $product_data["condition_id"];
+        $condition_resultset = Database::search("SELECT * FROM `condition` WHERE `id`=?", [$condition_id]);
+        $condition_data = $condition_resultset->fetch_assoc();
+        $condition = $condition_data["condition"];
+        $price = $product_data["price"];
+        $quantity = $product_data["qty"];
+        $status = $product_data["status_id"];
+        $category_id = $product_data["category_id"];
+        $brand_has_model_id = $product_data["brand_has_model_id"];
+        $category_resultset = Database::search("SELECT * FROM `category` WHERE `id`=?", [$category_id]);
+        $category_data = $category_resultset->fetch_assoc();
+        $category = $category_data["category"];
+        $brand_has_model_resultset = Database::search("SELECT * FROM `brand_has_model` WHERE `id`=?", [$brand_has_model_id]);
+        $brand_has_model_data = $brand_has_model_resultset->fetch_assoc();
+        $brand_id = $brand_has_model_data["brand_id"];
+        $model_id = $brand_has_model_data["model_id"];
+        $brand_resultset = Database::search("SELECT * FROM `brand` WHERE `id`=?", [$brand_id]);
+        $brand_data = $brand_resultset->fetch_assoc();
+        $brand = $brand_data["brand"];
+        $model_resultset = Database::search("SELECT * FROM `model` WHERE `id`=?", [$model_id]);
+        $model_data = $model_resultset->fetch_assoc();
+        $model = $model_data["model"];
 ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -22,10 +40,7 @@ if (isset($_SESSION["user"])) {
         head($title);
         ?>
 
-        <body data-product-id="<?php echo $product_id; ?>">
-            <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
-                <div class="spinner"></div>
-            </div>
+        <body id="update-product" data-product-id="<?php echo $product_id; ?>">
             <nav class="w-full h-[75px]">
                 <div class="container mx-auto h-full flex justify-center items-end">
                     <div class="w-max h-[90%]">
@@ -95,6 +110,25 @@ if (isset($_SESSION["user"])) {
                         <!--  -->
                         <div class="flex-1 pl-10">
                             <div id="added-images" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <?php
+                                $image_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=?", [$product_id]);
+                                $image_num = $image_resultset->num_rows;
+                                for ($i = 0; $i < $image_num; $i++) {
+                                    $image_data = $image_resultset->fetch_assoc();
+                                ?>
+                                    <!-- image item  -->
+                                    <div data-image-item="<?php echo $image_data["id"]; ?>" class="relative aspect-square flex justify-center items-center overflow-hidden">
+                                        <img class="h-auto max-w-full rounded-lg min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $image_data["product_image"]; ?>">
+                                        <div class="absolute bottom-0 inset-x-0 flex justify-around items-center w-full h-max bg-black/30 py-4">
+                                            <button class="text-gray-100 hover:text-white transition-all duration-75 ease-linear" data-image-remove="<?php echo $image_data["id"]; ?>">
+                                                <span class="material-symbols-outlined pointer-events-none">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- image item  -->
+                                <?php
+                                }
+                                ?>
                             </div>
                         </div>
                         <!--  -->
@@ -102,20 +136,20 @@ if (isset($_SESSION["user"])) {
                     </div>
                     <div class="w-full h-auto my-5">
                         <label for="title" class="block mb-2 capitalize font-fm-inter text-[15px] font-medium text-gray-900">product title</label>
-                        <input type="text" id="title" value="" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                        <input type="text" id="title" value="<?php echo $product_title; ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                     focus:ring-blue-500 focus:border-blue-500 block w-full font-fm-inter h-10 p-2.5 text-[15px]">
                     </div>
                     <div class="w-full h-auto my-5">
                         <label for="description" class="block mb-2 font-fm-inter capitalize font-medium text-gray-900 text-[15px]">product description</label>
                         <textarea id="description" rows="4" class="block p-2.5 font-fm-inter w-full text-[15px] text-gray-900 bg-gray-50 rounded-lg 
-                    border border-gray-300 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    border border-gray-300 focus:ring-blue-500 focus:border-blue-500"><?php echo $description; ?></textarea>
                     </div>
                     <!-- category  -->
                     <div class="w-full sm:w-[32%] h-auto my-5">
                         <label for="category" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the category</label>
                         <select id="category" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg 
                     focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 capitalize" disabled>
-                            <option value="0">select the category</option>
+                            <option value="0"><?php echo $category; ?></option>
                         </select>
                     </div>
                     <!-- category  -->
@@ -124,7 +158,7 @@ if (isset($_SESSION["user"])) {
                         <label for="brand" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the brand</label>
                         <select id="brand" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block w-full p-2.5 capitalize" disabled>
-                            <option value="0">select the brand</option>
+                            <option value="0"><?php echo $brand; ?></option>
                         </select>
                     </div>
                     <!-- brand  -->
@@ -133,7 +167,7 @@ if (isset($_SESSION["user"])) {
                         <label for="model" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the model</label>
                         <select id="model" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block w-full p-2.5 capitalize" disabled>
-                            <option value="0">select the model</option>
+                            <option value="0"><?php echo $model; ?></option>
                         </select>
                     </div>
                     <!-- model  -->
@@ -169,21 +203,21 @@ if (isset($_SESSION["user"])) {
                         <label for="condition" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">Select the condition</label>
                         <select id="condition" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block w-full p-2.5 capitalize" disabled>
-                            <option value="0">select the condition</option>
+                            <option value="0"><?php echo $condition; ?></option>
                         </select>
                     </div>
                     <!-- condition  -->
                     <!-- price  -->
                     <div class="w-full sm:w-[49%] h-auto my-5">
                         <label for="price" class="block mb-2 capitalize font-fm-inter text-[15px] font-medium text-gray-900">price</label>
-                        <input type="text" id="price" value="" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                        <input type="text" id="price" value="<?php echo $price; ?>" class="cursor-not-allowed bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg 
                     focus:ring-blue-500 focus:border-blue-500 block w-full font-fm-inter h-10 p-2.5 text-[15px]" disabled>
                     </div>
                     <!-- price  -->
                     <!-- quantity  -->
                     <div class="w-full sm:w-[49%] h-auto my-5">
                         <label for="quantity" class="block mb-2 capitalize font-fm-inter text-[15px] font-medium text-gray-900">quantity</label>
-                        <input type="text" id="quantity" value="" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                        <input type="text" id="quantity" value="<?php echo $quantity; ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                     focus:ring-blue-500 focus:border-blue-500 block w-full font-fm-inter h-10 p-2.5 text-[15px]">
                     </div>
                     <!-- quantity  -->
@@ -215,24 +249,14 @@ if (isset($_SESSION["user"])) {
                         </div>
                     </div>
                     <!-- shipping locations  -->
-                    <!-- shipping type  -->
-                    <div class="w-full sm:w-[49%] h-auto my-5">
-                        <label for="shipping-type" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">shipping type</label>
-                        <select id="shipping-type" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                            <option selected value="0">select the shipping type</option>
-                            <option value="1">flat rate</option>
-                            <option value="2">custom</option>
-                        </select>
-                    </div>
-                    <!-- shipping type  -->
                     <!-- shipping  -->
-                    <div class="w-full sm:w-[49%] h-auto my-5 flex flex-row flex-wrap justify-between items-end">
-                        <div class="w-[40%] h-auto">
+                    <div class="w-full h-auto my-5 flex flex-row flex-wrap justify-between items-end">
+                        <div class="w-[49%] h-auto sm:mr-5">
                             <label for="ship-country" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">country</label>
                             <select id="ship-country" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                                <option value="0">worldwide</option>
+                block w-full p-2.5">
+                                <option value="0">Please select shipping location</option>
+                                <option value="general">General</option>
                                 <?php
                                 $country_resultset = Database::search("SELECT * FROM `country`", []);
                                 $country_num = $country_resultset->num_rows;
@@ -248,14 +272,14 @@ if (isset($_SESSION["user"])) {
                         <div class="flex-1 h-auto">
                             <label for="shipping-cost" class="block mb-2 text-[15px] font-medium text-gray-900 capitalize font-fm-inter">shipping cost</label>
                             <div class="flex">
-                                <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+                                <span class="inline-flex items-center px-2 sm:px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
                                     <span class="material-symbols-outlined text-gray-500">
                                         attach_money
                                     </span>
                                 </span>
                                 <input type="text" id="shipping-cost" class="rounded-none bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 
                         block flex-1 min-w-0 w-full text-[14px] border-gray-300 p-2.5 font-fm-inter">
-                                <span class="inline-flex items-center px-3 text-[15px] bg-gray-200 border border-r-0 border-gray-300 rounded-r-md font-fm-inter font-normal text-gray-500">
+                                <span class="inline-flex items-center px-2 sm:px-3 text-[15px] bg-gray-200 border border-r-0 border-gray-300 rounded-r-md font-fm-inter font-normal text-gray-500">
                                     .00
                                 </span>
                             </div>
@@ -267,7 +291,7 @@ if (isset($_SESSION["user"])) {
                             </span>
                             <span class="sr-only">Add country</span>
                         </button>
-                        <div id="shipping-countries" class="w-full h-auto flex my-1">
+                        <div id="shipping-countries" class="w-full h-auto flex flex-wrap my-1">
                         </div>
                     </div>
                     <!-- shipping  -->
@@ -278,8 +302,6 @@ if (isset($_SESSION["user"])) {
                 </div>
             </section>
 
-            <script src="../assets/js/badge.js"></script>
-            <script type="module" src="../assets/js/updateProduct.js"></script>
         </body>
 
         </html>

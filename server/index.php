@@ -140,5 +140,16 @@ if (isset($_GET["action"])) {
             // remove_from_wishlist 
         }
         // cart
+        // update_product
+        if ($_GET["action"] == "update_product") {
+            require "./product.php";
+            $product = new Product();
+            // load_product_data 
+            if ($_GET["process"] == "load_product_data") {
+                $product->load_product_data();
+            }
+            // load_product_data 
+        }
+        // update_product
     }
 }

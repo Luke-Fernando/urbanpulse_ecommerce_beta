@@ -21,6 +21,7 @@ class Product {
     item.id = id;
     item.classList.add(
       "inline-flex",
+      "w-max",
       "items-center",
       "px-2",
       "py-1",
@@ -95,10 +96,12 @@ class Product {
         let id = this.generateUniqueId(propertyType);
         baseArray.push(this.createPropertyArrayItem(id, propertyName, propertyValue));
         parent.appendChild(this.createPropertyElement(elementText, id));
+        console.log(this.createPropertyElement(elementText, id));
       } else if (!baseArray.some((item) => item.name == propertyName || item.value == propertyValue)) {
         let id = this.generateUniqueId(propertyType);
         baseArray.push(this.createPropertyArrayItem(id, propertyName, propertyValue));
         parent.appendChild(this.createPropertyElement(elementText, id));
+        console.log(this.createPropertyElement(elementText, id));
       }
     }
   }
@@ -142,55 +145,6 @@ class Product {
         locationSelect.innerHTML = response;
       } catch (error) {
         console.error("Error:", error);
-      }
-    }
-  }
-
-  async manageShippingTypes() {
-    let spinner = new Spinner();
-    spinner.addProcessLoadSpinner();
-    const shippingTypeSelect = document.getElementById("shipping-type");
-    let shippingTypeValue = shippingTypeSelect.value;
-    const shippingCountriesSelect = document.getElementById("ship-country");
-    const shippingCountries = document.getElementById("shipping-countries");
-    if (shippingTypeValue != 0 && shippingTypeValue == 1) {
-      let values = [{ name: "shipping_type", data: "flat" }];
-      try {
-        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_flat");
-        shippingCountriesSelect.innerHTML = response;
-        shippingCountries.replaceChildren();
-        this.shippingCostsArray = [];
-        spinner.removeProcessLoadSpinner();
-      } catch (error) {
-        console.error("Error:", error);
-        spinner.removeProcessLoadSpinner();
-      }
-    } else if (shippingTypeValue != 0 && shippingTypeValue == 2) {
-      let values = [
-        { name: "shipping_type", data: "custom" },
-        { name: "shipping_locations", data: JSON.stringify(this.locationsArray) },
-      ];
-      try {
-        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_custom");
-        shippingCountriesSelect.innerHTML = response;
-        shippingCountries.replaceChildren();
-        this.shippingCostsArray = [];
-        spinner.removeProcessLoadSpinner();
-      } catch (error) {
-        console.error("Error:", error);
-        spinner.removeProcessLoadSpinner();
-      }
-    } else if (shippingTypeValue == 0) {
-      let values = [{ name: "shipping_type", data: "none" }];
-      try {
-        let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_shipping_type_none");
-        shippingCountriesSelect.innerHTML = response;
-        shippingCountries.replaceChildren();
-        this.shippingCostsArray = [];
-        spinner.removeProcessLoadSpinner();
-      } catch (error) {
-        console.error("Error:", error);
-        spinner.removeProcessLoadSpinner();
       }
     }
   }
@@ -378,7 +332,6 @@ class Product {
     let condition = document.getElementById("condition").value;
     let price = document.getElementById("price").value;
     let quantity = document.getElementById("quantity").value;
-    let shippingType = document.getElementById("shipping-type").value;
     let alert = new Alert("success");
     if (this.imagesArray.length < 3) {
       processLoadSpinner.removeProcessLoadSpinner(() => {
@@ -424,10 +377,6 @@ class Product {
       processLoadSpinner.removeProcessLoadSpinner(() => {
         alert.error("Please add your shipping location(s)");
       });
-    } else if (shippingType == 0) {
-      processLoadSpinner.removeProcessLoadSpinner(() => {
-        alert.error("Please select your shipping type");
-      });
     } else if (this.shippingCostsArray.length < 1) {
       processLoadSpinner.removeProcessLoadSpinner(() => {
         alert.error("Please add your shipping cost(s)");
@@ -444,7 +393,6 @@ class Product {
         { name: "price", data: price },
         { name: "quantity", data: quantity },
         { name: "shipping_locations", data: JSON.stringify(this.locationsArray) },
-        { name: "shipping_type", data: shippingType },
         { name: "shipping_cost", data: JSON.stringify(this.shippingCostsArray) },
       ];
       for (let image of this.imagesArray) {
@@ -470,6 +418,65 @@ class Product {
       }
     }
   }
+
+  // update product
+  async loadProductData(event) {
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let productId = urlParams.get('id');
+    let values = [
+      { name: "product_id", data: productId }
+    ];
+    try {
+      let response = await this.connection.post(values, "../server/index.php?action=update_product&process=load_product_data");
+      let receivedData = JSON.parse(response);
+      console.log(receivedData);
+      // load colors
+      let colors = receivedData.colors;
+      colors.forEach(element => {
+        let color = element.name;
+        let colorValue = element.value;
+        this.addProperty("colors", this.colorsArray, "color", color, colorValue);
+      });
+      // load colors
+      // load locations 
+      let locations = receivedData.locations;
+      locations.forEach(element => {
+        let location = element.name;
+        let locationValue = element.value;
+        this.addProperty("locations", this.locationsArray, "location", location, locationValue);
+        this.manageLocations();
+      })
+      // load locations
+      // load costs 
+      let costs = receivedData.costs;
+      costs.forEach(element => {
+        let country = element.name.country;
+        let countryValue = element.value;
+        let shippingCostVal = element.name.value;
+        if (shippingCostVal != "" && shippingCostVal != null && shippingCostVal != 0) {
+          let shippingCost = parseFloat(shippingCostVal).toFixed(2);
+          console.log(shippingCost);
+          if (!isNaN(shippingCost) && shippingCost != 0) {
+            let shippingCountryPair = { country: country, value: shippingCost };
+            this.addProperty(
+              "shipping-countries",
+              this.shippingCostsArray,
+              "shipping-cost",
+              shippingCountryPair,
+              countryValue,
+              `${country}-$${shippingCost}`
+            );
+          }
+        }
+      });
+      console.log(this.shippingCostsArray);
+      // load costs 
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+  // update product 
 }
 
 export default Product;

@@ -225,37 +225,37 @@ if (isset($_SESSION["user"])) {
                     </div>
                 </div>
                 <!-- shipping locations  -->
-                <!-- shipping type  -->
-                <div class="w-full sm:w-[49%] h-auto my-5">
-                    <label for="shipping-type" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">shipping type</label>
-                    <select id="shipping-type" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
-                block w-full p-2.5 capitalize">
-                        <option selected value="0">select the shipping type</option>
-                        <option value="1">flat rate</option>
-                        <option value="2">custom</option>
-                    </select>
-                </div>
-                <!-- shipping type  -->
                 <!-- shipping  -->
-                <div class="w-full sm:w-[49%] h-auto my-5 flex flex-row flex-wrap justify-between items-end">
-                    <div class="w-[40%] h-auto">
+                <div class="w-full h-auto my-5 flex flex-row flex-wrap justify-between items-end">
+                    <div class="w-[49%] h-auto sm:mr-5">
                         <label for="ship-country" class="block mb-2 text-[15px] font-fm-inter font-medium text-gray-900 capitalize">country</label>
                         <select id="ship-country" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block w-full p-2.5">
-                            <option value="0">Please select the shipping type first</option>
+                            <option value="0">Please select shipping location</option>
+                            <option value="general">General</option>
+                            <?php
+                            $country_resultset = Database::search("SELECT * FROM `country`", []);
+                            $country_num = $country_resultset->num_rows;
+                            for ($i = 0; $i < $country_num; $i++) {
+                                $country_data = $country_resultset->fetch_assoc();
+                            ?>
+                                <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                            <?php
+                            }
+                            ?>
                         </select>
                     </div>
                     <div class="flex-1 h-auto">
                         <label for="shipping-cost" class="block mb-2 text-[15px] font-medium text-gray-900 capitalize font-fm-inter">shipping cost</label>
                         <div class="flex">
-                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+                            <span class="inline-flex items-center px-2 sm:px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
                                 <span class="material-symbols-outlined text-gray-500">
                                     attach_money
                                 </span>
                             </span>
                             <input type="text" id="shipping-cost" class="rounded-none bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 
                         block flex-1 min-w-0 w-full text-[14px] border-gray-300 p-2.5 font-fm-inter">
-                            <span class="inline-flex items-center px-3 text-[15px] bg-gray-200 border border-r-0 border-gray-300 rounded-r-md font-fm-inter font-normal text-gray-500">
+                            <span class="inline-flex items-center px-2 sm:px-3 text-[15px] bg-gray-200 border border-r-0 border-gray-300 rounded-r-md font-fm-inter font-normal text-gray-500">
                                 .00
                             </span>
                         </div>
@@ -267,7 +267,7 @@ if (isset($_SESSION["user"])) {
                         </span>
                         <span class="sr-only">Add country</span>
                     </button>
-                    <div id="shipping-countries" class="w-full h-auto flex my-1">
+                    <div id="shipping-countries" class="w-full h-auto flex flex-wrap my-1">
                     </div>
                 </div>
                 <!-- shipping  -->
