@@ -232,17 +232,6 @@ if (isset($_SESSION["user"])) {
                         <select id="ship-country" class="bg-gray-50 border border-gray-300 text-gray-900 text-[14px] font-fm-inter rounded-lg focus:ring-blue-500 focus:border-blue-500 
                 block w-full p-2.5">
                             <option value="0">Please select shipping location</option>
-                            <option value="general">General</option>
-                            <?php
-                            $country_resultset = Database::search("SELECT * FROM `country`", []);
-                            $country_num = $country_resultset->num_rows;
-                            for ($i = 0; $i < $country_num; $i++) {
-                                $country_data = $country_resultset->fetch_assoc();
-                            ?>
-                                <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
-                            <?php
-                            }
-                            ?>
                         </select>
                     </div>
                     <div class="flex-1 h-auto">

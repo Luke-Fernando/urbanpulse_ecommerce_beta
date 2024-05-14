@@ -119,7 +119,6 @@ class Product {
   }
 
   async manageLocations() {
-    this.manageShippingTypes();
     const locationSelect = document.getElementById("country");
     if (this.locationsArray.length == 1 && this.locationsArray.some((item) => item.value == "worldwide")) {
       let values = [{ name: "location", data: "worldwide" }];
@@ -149,6 +148,20 @@ class Product {
     }
   }
 
+  async manageShippingCostLocations() {
+    const costLocationSelect = document.getElementById("ship-country");
+    const shippingCountriesContainer = document.getElementById("shipping-countries");
+    let values = [{ name: "location", data: JSON.stringify(this.locationsArray) }];
+    try {
+      let response = await this.connection.post(values, "../server/index.php?action=product&process=manage_cost_locations");
+      costLocationSelect.innerHTML = response;
+      this.shippingCostsArray = [];
+      shippingCountriesContainer.innerHTML = "";
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   addColor() {
     let color = document.getElementById("color").options[document.getElementById("color").selectedIndex].text;
     let colorValue = document.getElementById("color").value;
@@ -163,11 +176,13 @@ class Product {
     let locationValue = document.getElementById("country").value;
     this.addProperty("locations", this.locationsArray, "location", location, locationValue);
     this.manageLocations();
+    this.manageShippingCostLocations();
   }
 
   removeLocations(event) {
     this.removeProperty(event, this.locationsArray);
     this.manageLocations();
+    this.manageShippingCostLocations();
   }
   addShippingCosts() {
     // {id: id, name: {country:country, value: value}, value: value}

@@ -71,26 +71,16 @@ if (isset($_GET["action"])) {
                 $product->manage_locations_none();
             }
             // manage_locations_none 
-            // manage_shipping_type_flat 
-            if ($_GET["process"] == "manage_shipping_type_flat") {
-                $product->manage_shipping_type_flat();
+            // manage_cost_locations 
+            if ($_GET["process"] == "manage_cost_locations") {
+                $product->manage_cost_locations();
             }
-            // manage_shipping_type_flat 
-            // manage_shipping_type_custom 
-            if ($_GET["process"] == "manage_shipping_type_custom") {
-                $product->manage_shipping_type_custom();
-            }
-            // manage_shipping_type_custom 
-            // manage_shipping_type_none 
-            if ($_GET["process"] == "manage_shipping_type_none") {
-                $product->manage_shipping_type_none();
-            }
-            // manage_shipping_type_none 
+            // manage_cost_locations 
             // list_product 
             if ($_GET["process"] == "list_product") {
                 $product->list_product();
             }
-            // list_product
+            // list_product 
         }
         // product 
         // cart

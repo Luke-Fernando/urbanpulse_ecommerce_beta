@@ -139,8 +139,52 @@ class Product
                         $country_data = $country_resultset->fetch_assoc();
                     ?>
                         <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
-<?php
+                    <?php
                     }
+                }
+            }
+        }
+    }
+
+    public function manage_cost_locations()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["location"]) && !empty($_POST["location"])) {
+                $locations = json_decode($_POST["location"]);
+                if (sizeof($locations) > 0) {
+                    if ($locations[0]->name == "worldwide") {
+                    ?>
+                        <option value="0">Please select shipping location</option>
+                        <option value="general">General</option>
+                        <?php
+                        $country_resultset = Database::search("SELECT * FROM `country`", []);
+                        $country_num = $country_resultset->num_rows;
+                        for ($i = 0; $i < $country_num; $i++) {
+                            $country_data = $country_resultset->fetch_assoc();
+                        ?>
+                            <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                        <?php
+                        }
+                    } else {
+                        ?>
+                        <option value="0">Please select shipping location</option>
+                        <option value="general">General</option>
+                        <?php
+                        foreach ($locations as $item) {
+                            $location = $item->value;
+                            $country_resultset = Database::search("SELECT * FROM `country` WHERE `id` = ?", [$location]);
+                            $country_data = $country_resultset->fetch_assoc();
+                        ?>
+                            <option value="<?php echo $country_data["id"] ?>"><?php echo $country_data["country"] ?></option>
+                            <?php
+                            ?>
+                    <?php
+                        }
+                    }
+                } else {
+                    ?>
+                    <option value="0">Please select shipping location</option>
+<?php
                 }
             }
         }
