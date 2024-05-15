@@ -139,6 +139,11 @@ if (isset($_GET["action"])) {
                 $product->load_product_data();
             }
             // load_product_data 
+            // update_product 
+            if ($_GET["process"] == "update_product") {
+                $product->update_product();
+            }
+            // update_product 
         }
         // update_product
     }

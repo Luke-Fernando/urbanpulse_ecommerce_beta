@@ -93,6 +93,8 @@ function addProduct() {
 
   // update product
   initializeData("#update-product");
+  removeImage("added-images", "removeLoadedImages");
+  callProductMethod("update-item-btn", "updateProduct");
   // update product
 }
 

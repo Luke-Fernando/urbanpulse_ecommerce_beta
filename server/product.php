@@ -645,5 +645,293 @@ class Product
             }
         }
     }
+
+    private function reset_shipping($product_id)
+    {
+        $shipping_resultset = Database::search("SELECT * FROM `shipping` WHERE `product_id`=?;", [$product_id]);
+        $shipping_num = $shipping_resultset->num_rows;
+        for ($i = 0; $i < $shipping_num; $i++) {
+            $shipping_data = $shipping_resultset->fetch_assoc();
+            $shipping_id = $shipping_data["id"];
+            Database::iud("DELETE FROM `shipping_cost` WHERE `shipping_id`=?;", [$shipping_id]);
+        }
+        Database::iud("DELETE FROM `shipping` WHERE `product_id`=?;", [$product_id]);
+    }
+
+    public function update_product()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["title"]) && !empty($_POST["title"])) {
+                if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                    if (isset($_POST["colors"])) {
+                        if (sizeof(json_decode($_POST["colors"])) > 0) {
+                            if (isset($_POST["quantity"]) && !empty($_POST["quantity"])) {
+                                if (ctype_digit($_POST["quantity"])) {
+                                    if ($_POST["quantity"] > 0) {
+                                        if (isset($_POST["shipping_locations"])) {
+                                            if (sizeof(json_decode($_POST["shipping_locations"])) > 0) {
+                                                if (isset($_POST["shipping_cost"])) {
+                                                    if (sizeof(json_decode($_POST["shipping_cost"])) > 0) {
+                                                        //
+                                                        if ((count($_FILES) + sizeof(json_decode($_POST["loaded_images"]))) >= 3) {
+                                                            $user = $_SESSION["user"];
+                                                            $product_id = $_POST["product_id"];
+                                                            $shipping_locations = json_decode($_POST["shipping_locations"]);
+                                                            $shipping_costs = json_decode($_POST["shipping_cost"]);
+                                                            $loaded_images = json_decode($_POST["loaded_images"]);
+                                                            /* -------------------------------------------------------------------------- */
+                                                            /*                             LOCATION VALIDATION                            */
+                                                            /* -------------------------------------------------------------------------- */
+                                                            $shipping_state = "Something went wrong";
+                                                            $is_worldwide = false;
+                                                            foreach ($shipping_locations as $item) {
+                                                                if ($item->value == "worldwide") {
+                                                                    $is_worldwide = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                            $has_general = false;
+                                                            $general = null;
+                                                            foreach ($shipping_costs as $item) {
+                                                                if ($item->value == "general") {
+                                                                    $has_general = true;
+                                                                    $general = $item->name->value;
+                                                                    break;
+                                                                }
+                                                            }
+                                                            if ($is_worldwide) {
+                                                                $shipping_option_resultset = Database::search("SELECT * FROM `shipping_option` WHERE `shipping_option`=?", ["Worldwide"]);
+                                                                $shipping_option_data = $shipping_option_resultset->fetch_assoc();
+                                                                $shipping_option = $shipping_option_data["id"];
+                                                                if (sizeof($shipping_locations) == 1) {
+                                                                    if ($has_general) {
+                                                                        if (sizeof($shipping_costs) == 1) {
+                                                                            $this->reset_shipping($product_id);
+                                                                            Database::iud(
+                                                                                "INSERT INTO `shipping`(`product_id`,`shipping_option_id`,`general_cost`) VALUES(?,?,?);",
+                                                                                [$product_id, $shipping_option, $general]
+                                                                            );
+                                                                            $shipping_state = "success";
+                                                                        } else if (sizeof($shipping_costs) > 1) {
+                                                                            $this->reset_shipping($product_id);
+                                                                            Database::iud(
+                                                                                "INSERT INTO `shipping`(`product_id`,`shipping_option_id`,`general_cost`) VALUES(?,?,?);",
+                                                                                [$product_id, $shipping_option, $general]
+                                                                            );
+                                                                            $shipping_id = mysqli_insert_id(Database::$connection);
+                                                                            foreach ($shipping_costs as $item) {
+                                                                                if ($item->value != "general") {
+                                                                                    $country = $item->value;
+                                                                                    $cost = $item->name->value;
+                                                                                    Database::iud(
+                                                                                        "INSERT INTO `shipping_cost`(`shipping_id`,`country_id`,`shipping_cost`) VALUES(?,?,?);",
+                                                                                        [$shipping_id, $country, $cost]
+                                                                                    );
+                                                                                }
+                                                                            }
+                                                                            $shipping_state = "success";
+                                                                        }
+                                                                    } else {
+                                                                        $country_resultset = Database::search("SELECT * FROM `country`", []);
+                                                                        $country_num = $country_resultset->num_rows;
+                                                                        $is_locations_covered = false;
+                                                                        for ($i = 0; $i < $country_num; $i++) {
+                                                                            $country_data = $country_resultset->fetch_assoc();
+                                                                            $country = $country_data["id"];
+                                                                            $is_location_covered = false;
+                                                                            foreach ($shipping_costs as $item) {
+                                                                                if ($item->value == $country) {
+                                                                                    $is_location_covered = true;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                            if (!$is_location_covered) {
+                                                                                $is_locations_covered = false;
+                                                                                $shipping_state = "Please add shipping cost for every location or add a general cost";
+                                                                                break;
+                                                                            } else {
+                                                                                $is_locations_covered = true;
+                                                                            }
+                                                                        }
+                                                                        if ($is_locations_covered) {
+                                                                            $this->reset_shipping($product_id);
+                                                                            Database::iud(
+                                                                                "INSERT INTO `shipping`(`product_id`,`shipping_option_id`,`general_cost`) VALUES(?,?,?);",
+                                                                                [$product_id, $shipping_option, $general]
+                                                                            );
+                                                                            $shipping_id = mysqli_insert_id(Database::$connection);
+                                                                            for ($i = 0; $i < $country_num; $i++) {
+                                                                                $country_data = $country_resultset->fetch_assoc();
+                                                                                $country = $country_data["id"];
+                                                                                foreach ($shipping_costs as $item) {
+                                                                                    if ($item->value == $country) {
+                                                                                        Database::iud(
+                                                                                            "INSERT INTO `shipping_cost`(`shipping_id`,`country_id`,`shipping_cost`) VALUES(?,?,?);",
+                                                                                            [$shipping_id, $item->value, $item->name->value]
+                                                                                        );
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            $shipping_state = "success";
+                                                                        }
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                $shipping_option_resultset = Database::search("SELECT * FROM `shipping_option` WHERE `shipping_option`=?", ["Custom"]);
+                                                                $shipping_option_data = $shipping_option_resultset->fetch_assoc();
+                                                                $shipping_option = $shipping_option_data["id"];
+                                                                if ($has_general) {
+                                                                    $this->reset_shipping($product_id);
+                                                                    Database::iud(
+                                                                        "INSERT INTO `shipping`(`product_id`,`shipping_option_id`,`general_cost`) VALUES(?,?,?);",
+                                                                        [$product_id, $shipping_option, $general]
+                                                                    );
+                                                                    $shipping_id = mysqli_insert_id(Database::$connection);
+                                                                    foreach ($shipping_locations as $location) {
+                                                                        $country = $location->value;
+                                                                        $cost = null;
+                                                                        foreach ($shipping_costs as $item) {
+                                                                            if ($item->value == $country) {
+                                                                                $cost = $item->name->value;
+                                                                            }
+                                                                        }
+                                                                        Database::iud(
+                                                                            "INSERT INTO `shipping_cost`(`shipping_id`,`country_id`,`shipping_cost`) VALUES(?,?,?);",
+                                                                            [$shipping_id, $country, $cost]
+                                                                        );
+                                                                    }
+                                                                    $shipping_state = "success";
+                                                                } else {
+                                                                    //
+                                                                    $is_locations_covered = false;
+                                                                    foreach ($shipping_locations as $location) {
+                                                                        $country = $location->value;
+                                                                        $is_location_covered = false;
+                                                                        foreach ($shipping_costs as $item) {
+                                                                            if ($item->value == $country) {
+                                                                                $is_location_covered = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        if (!$is_location_covered) {
+                                                                            $is_locations_covered = false;
+                                                                            $shipping_state = "Please add shipping cost for every location or add a general cost";
+                                                                            break;
+                                                                        } else {
+                                                                            $is_locations_covered = true;
+                                                                        }
+                                                                    }
+                                                                    if ($is_locations_covered) {
+                                                                        $this->reset_shipping($product_id);
+                                                                        Database::iud(
+                                                                            "INSERT INTO `shipping`(`product_id`,`shipping_option_id`,`general_cost`) VALUES(?,?,?);",
+                                                                            [$product_id, $shipping_option, $general]
+                                                                        );
+                                                                        $shipping_id = mysqli_insert_id(Database::$connection);
+                                                                        foreach ($shipping_locations as $location) {
+                                                                            $country = $location->value;
+                                                                            foreach ($shipping_costs as $item) {
+                                                                                Database::iud(
+                                                                                    "INSERT INTO `shipping_cost`(`shipping_id`,`country_id`,`shipping_cost`) VALUES(?,?,?);",
+                                                                                    [$shipping_id, $country, $item->name->value]
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                        $shipping_state = "success";
+                                                                    } else {
+                                                                        $shipping_state = "Please add a shipping cost for every location or add a general cost";
+                                                                    }
+                                                                }
+                                                            }
+                                                            /* -------------------------------------------------------------------------- */
+                                                            /*                             LOCATION VALIDATION                            */
+                                                            /* -------------------------------------------------------------------------- */
+                                                            if ($shipping_state == "success") {
+                                                                // update the product
+                                                                $title = $_POST["title"];
+                                                                $description = $_POST["description"];
+                                                                $colors = json_decode($_POST["colors"]);
+                                                                $quantity = $_POST["quantity"];
+                                                                Database::iud(
+                                                                    "UPDATE `product` SET `title`=?,`description`=?,`qty`=? WHERE `id`=? AND `users_id`=?;",
+                                                                    [$title, $description, $quantity, $product_id, $user["id"]]
+                                                                );
+                                                                Database::iud("DELETE FROM `product_has_color` WHERE `product_id`=?;", [$product_id]);
+                                                                foreach ($colors as $item) {
+                                                                    $color = $item->value;
+                                                                    Database::iud("INSERT INTO `product_has_color`(`product_id`,`color_id`) VALUES(?,?);", [$product_id, $color]);
+                                                                }
+                                                                // update the product
+                                                                $old_images_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=?;", [$product_id]);
+                                                                $old_images_num = $old_images_resultset->num_rows;
+                                                                for ($i = 0; $i < $old_images_num; $i++) {
+                                                                    $old_image_data = $old_images_resultset->fetch_assoc();
+                                                                    $old_image_id = $old_image_data["id"];
+                                                                    $is_available = false;
+                                                                    foreach ($loaded_images as $item) {
+                                                                        $image = $item->value;
+                                                                        if ($image == $old_image_id) {
+                                                                            $is_available = true;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    if (!$is_available) {
+                                                                        Database::iud("DELETE FROM `product_image` WHERE `id`=?;", [$old_image_id]);
+                                                                    }
+                                                                }
+                                                                if (count($_FILES) > 0) {
+                                                                    $image_num = count($_FILES);
+                                                                    for ($i = 0; $i < $image_num; $i++) {
+                                                                        if (isset($_FILES["image-$i"])) {
+                                                                            $image = $_FILES["image-$i"];
+                                                                            $this->list_product_image($image, $user["email"], $product_id);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                echo ("success");
+                                                            } else {
+                                                                echo $shipping_state;
+                                                            }
+                                                        } else {
+                                                            echo ("Please add at least 3 images");
+                                                        }
+                                                        //
+                                                    } else {
+                                                        echo ("Please add your shipping cost(s)");
+                                                    }
+                                                } else {
+                                                    echo ("Please add your shipping cost(s)");
+                                                }
+                                            } else {
+                                                echo ("Please add at least 1 location");
+                                            }
+                                        } else {
+                                            echo ("Please add your location(s)");
+                                        }
+                                    } else {
+                                        echo ("Please enter a valid quantity");
+                                    }
+                                } else {
+                                    echo ("Please enter a valid quantity");
+                                }
+                            } else {
+                                echo ("Please add your quantity");
+                            }
+                        } else {
+                            echo ("Please add at least 1 color");
+                        }
+                    } else {
+                        echo ("Please add your color(s)");
+                    }
+                } else {
+                    echo ("Please add your description");
+                }
+            } else {
+                echo ("Please add your title");
+            }
+        } else {
+            echo ("Please signin to your account");
+        }
+    }
     // update product 
 }

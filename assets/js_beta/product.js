@@ -9,6 +9,7 @@ class Product {
     this.locationsArray = [];
     this.shippingCostsArray = [];
     this.imagesArray = [];
+    this.loadedImagesArray = [];
   }
 
   generateUniqueId(prefix = "item-id") {
@@ -73,11 +74,6 @@ class Product {
   }
 
   createPropertyArrayItem(id, name, value) {
-    console.log({
-      id: id,
-      name: name,
-      value: value,
-    });
     return {
       id: id,
       name: name,
@@ -96,12 +92,10 @@ class Product {
         let id = this.generateUniqueId(propertyType);
         baseArray.push(this.createPropertyArrayItem(id, propertyName, propertyValue));
         parent.appendChild(this.createPropertyElement(elementText, id));
-        console.log(this.createPropertyElement(elementText, id));
       } else if (!baseArray.some((item) => item.name == propertyName || item.value == propertyValue)) {
         let id = this.generateUniqueId(propertyType);
         baseArray.push(this.createPropertyArrayItem(id, propertyName, propertyValue));
         parent.appendChild(this.createPropertyElement(elementText, id));
-        console.log(this.createPropertyElement(elementText, id));
       }
     }
   }
@@ -191,7 +185,6 @@ class Product {
     let shippingCostVal = document.getElementById("shipping-cost").value;
     if (shippingCostVal != "" && shippingCostVal != null && shippingCostVal != 0) {
       let shippingCost = parseFloat(shippingCostVal).toFixed(2);
-      console.log(shippingCost);
       if (!isNaN(shippingCost) && shippingCost != 0) {
         let shippingCountryPair = { country: country, value: shippingCost };
         this.addProperty(
@@ -249,10 +242,6 @@ class Product {
   }
 
   createImageArrayItem(id, file) {
-    console.log({
-      id: id,
-      file: file,
-    });
     return {
       id: id,
       file: file,
@@ -276,8 +265,6 @@ class Product {
           // imageElement.src = src;
         };
         reader.readAsDataURL(file);
-        console.log(this.imagesArray);
-        console.log(this.imagesArray.length);
       }
     }
   }
@@ -289,8 +276,20 @@ class Product {
       let index = this.imagesArray.findIndex((item) => item.id === itemId);
       if (index !== -1) {
         this.imagesArray.splice(index, 1);
+        element.parentNode.removeChild(element);
       }
-      element.parentNode.removeChild(element);
+    }
+  }
+
+  removeLoadedImages(event) {
+    if (event.target.matches("[data-loaded-image-remove]")) {
+      let itemId = event.target.getAttribute("data-loaded-image-remove");
+      let element = document.querySelector(`[data-loaded-image-item="${itemId}"]`);
+      let index = this.loadedImagesArray.findIndex((item) => item.value == itemId);
+      if (index != -1) {
+        this.loadedImagesArray.splice(index, 1);
+        element.parentNode.removeChild(element);
+      }
     }
   }
 
@@ -413,7 +412,6 @@ class Product {
       for (let image of this.imagesArray) {
         let imageNum = this.imagesArray.indexOf(image);
         values.push({ name: `image-${imageNum}`, data: image.file });
-        console.log(image.file);
       }
       try {
         let response = await this.connection.post(values, "../server/index.php?action=product&process=list_product");
@@ -445,7 +443,6 @@ class Product {
     try {
       let response = await this.connection.post(values, "../server/index.php?action=update_product&process=load_product_data");
       let receivedData = JSON.parse(response);
-      console.log(receivedData);
       // load colors
       let colors = receivedData.colors;
       colors.forEach(element => {
@@ -461,7 +458,7 @@ class Product {
         let locationValue = element.value;
         this.addProperty("locations", this.locationsArray, "location", location, locationValue);
         this.manageLocations();
-      })
+      });
       // load locations
       // load costs 
       let costs = receivedData.costs;
@@ -471,7 +468,6 @@ class Product {
         let shippingCostVal = element.name.value;
         if (shippingCostVal != "" && shippingCostVal != null && shippingCostVal != 0) {
           let shippingCost = parseFloat(shippingCostVal).toFixed(2);
-          console.log(shippingCost);
           if (!isNaN(shippingCost) && shippingCost != 0) {
             let shippingCountryPair = { country: country, value: shippingCost };
             this.addProperty(
@@ -485,10 +481,89 @@ class Product {
           }
         }
       });
-      console.log(this.shippingCostsArray);
-      // load costs 
+      // load costs
+      // load images 
+      let images = receivedData.images;
+      images.forEach(element => {
+        let image = element.name;
+        let imageValue = element.value;
+        let currentImageArray = {
+          "name": image,
+          "value": imageValue
+        }
+        this.loadedImagesArray.push(currentImageArray);
+      });
+      // load images 
     } catch (error) {
       console.error("Error:", error);
+    }
+  }
+
+  async updateProduct() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let productId = urlParams.get('id');
+    let title = document.getElementById("title").value;
+    let description = document.getElementById("description").value;
+    let quantity = document.getElementById("quantity").value;
+    let alert = new Alert("success");
+    if (title == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your title");
+      });
+    } else if (description == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your description");
+      });
+    } else if (this.colorsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add at least 1 color");
+      });
+    } else if (quantity == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your quantity");
+      });
+    } else if (this.locationsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your shipping location(s)");
+      });
+    } else if (this.shippingCostsArray.length < 1) {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your shipping cost(s)");
+      });
+    } else {
+      let values = [
+        { name: "product_id", data: productId },
+        { name: "loaded_images", data: JSON.stringify(this.loadedImagesArray) },
+        { name: "title", data: title },
+        { name: "description", data: description },
+        { name: "colors", data: JSON.stringify(this.colorsArray) },
+        { name: "quantity", data: quantity },
+        { name: "shipping_locations", data: JSON.stringify(this.locationsArray) },
+        { name: "shipping_cost", data: JSON.stringify(this.shippingCostsArray) },
+      ];
+      for (let image of this.imagesArray) {
+        let imageNum = this.imagesArray.indexOf(image);
+        values.push({ name: `image-${imageNum}`, data: image.file });
+      }
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=update_product&process=update_product");
+        if (response == "success") {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.success("Product updated successfully", () => {
+              window.location.reload();
+            });
+          });
+        } else {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.error(response);
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   }
   // update product 
