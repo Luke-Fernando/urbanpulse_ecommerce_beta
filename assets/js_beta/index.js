@@ -132,17 +132,19 @@ function wishlist() {
   let wishlist;
 
   function callWishlistMethod(triggerId, method, event = "click") {
-    let trigger = document.querySelector(triggerId);
-    if (trigger != null) {
-      trigger.addEventListener(event, (e) => {
-        if (wishlist != null || wishlist instanceof Wishlist) {
-          wishlist[method](e);
-        } else {
-          wishlist = new Wishlist();
-          wishlist[method](e);
-        }
-      });
-    }
+    let triggers = document.querySelectorAll(triggerId);
+    triggers.forEach((trigger) => {
+      if (trigger != null) {
+        trigger.addEventListener(event, (e) => {
+          if (wishlist != null || wishlist instanceof Wishlist) {
+            wishlist[method](e);
+          } else {
+            wishlist = new Wishlist();
+            wishlist[method](e);
+          }
+        });
+      }
+    });
   }
 
   callWishlistMethod("#add-to-wishlist-btn", "addToWishlist");

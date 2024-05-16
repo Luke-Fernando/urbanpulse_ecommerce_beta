@@ -4,6 +4,9 @@ require "../server/connection.php";
 require "../head.php";
 require "../navbar.php";
 require "../components/customSelect.php";
+require "../client/generate.php";
+
+$generator = new Generate();
 
 
 if (isset($_SESSION["user"])) {
@@ -126,85 +129,7 @@ head($title);
             <div data-product-move-target="popular-products" class="w-max flex transition-all duration-100 ease-linear relative">
                 <?php
                 $popular_products_resultset = Database::search("SELECT * FROM `product` ORDER BY `click_count` DESC LIMIT 10;", []);
-                $popular_products_num = $popular_products_resultset->num_rows;
-                for ($i = 0; $i < $popular_products_num; $i++) {
-                    $popular_products_data = $popular_products_resultset->fetch_assoc();
-                ?>
-                    <!-- product  -->
-                    <div class="w-44 md:w-52 lg:w-72 bg-white  rounded-lg shadow">
-                        <a href="<?php echo "/urbanpulse_ecommerce_beta/product/?id=" . $popular_products_data["id"] . "&clicked=true"; ?>" class="w-4/5 flex justify-center items-center 
-                        aspect-square overflow-hidden mx-auto">
-                            <?php
-                            $popular_product_img_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$popular_products_data["id"]]);
-                            $popular_product_img_data = $popular_product_img_resultset->fetch_assoc();
-                            ?>
-                            <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $popular_product_img_data["product_image"]; ?>" alt="product image" />
-                        </a>
-                        <div class="px-5 pb-5">
-                            <a href="<?php echo "/urbanpulse_ecommerce_beta/product/?id=" . $popular_products_data["id"] . "&clicked=true"; ?>">
-                                <h5 class="text-sm font-medium tracking-tight text-gray-900 font-fm-inter truncate"><?php echo $popular_products_data["title"]; ?></h5>
-                            </a>
-                            <div class="flex items-center mt-2.5 mb-5">
-                                <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <svg class="w-3 h-3 xl:w-4 xl:h-4 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">5.0</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-md xl:text-xl font-bold text-gray-900 dark:text-white">$<?php echo $popular_products_data["price"]; ?></span>
-                                <?php
-                                if (isset($_SESSION["user"])) {
-                                    $wishlist_resultset = Database::search("SELECT * FROM wishlist WHERE product_id=? AND users_id=?", [$popular_products_data["id"], $user["id"]]);
-                                    $wishlist_num = $wishlist_resultset->num_rows;
-                                    if ($wishlist_num == 1) {
-                                        $wishlist_data = $wishlist_resultset->fetch_assoc();
-                                ?>
-                                        <button data-toggle-wishlist="<?php echo $popular_products_data["id"]; ?>" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all 
-                                        duration-200 ease-linear hover:bg-[var(--main-bg-low)] font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                            <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                favorite
-                                            </span>
-                                        </button>
-                                    <?php
-                                    } else if ($wishlist_num == 0) {
-                                    ?>
-                                        <button data-toggle-wishlist="<?php echo $popular_products_data["id"]; ?>" class="text-[var(--text-white-high)] 
-                                        bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] font-medium text-xs px-4 py-1 capitalize font-fm-inter">
-                                            <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                favorite
-                                            </span>
-                                        </button>
-                                    <?php
-                                    }
-                                } else {
-                                    ?>
-                                    <button data-toggle-wishlist="<?php echo $popular_products_data["id"]; ?>" class="text-[var(--text-white-high)] 
-                                    bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                        <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                            favorite
-                                        </span>
-                                    </button>
-                                <?php
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- product  -->
-                <?php
-                }
+                $generator->generate_products($popular_products_resultset, $user);
                 ?>
             </div>
             <button data-product-move-right="popular-products" class="h-max w-max absolute right-0 top-1/2 -translate-y-1/2 transition-all duration-75 ease-linear bg-[var(--main-bg-low)] 
@@ -240,85 +165,7 @@ head($title);
                 <div data-product-move-target="category-<?php echo $category_data["id"]; ?>" class="w-max flex transition-all duration-100 ease-linear relative">
                     <?php
                     $products_resultset = Database::search("SELECT * FROM `product` WHERE `category_id`=?", [$category_data["id"]]);
-                    $products_num = $products_resultset->num_rows;
-                    for ($i = 0; $i < $products_num; $i++) {
-                        $products_data = $products_resultset->fetch_assoc();
-                    ?>
-                        <!-- product  -->
-                        <div class="w-44 md:w-52 lg:w-72 bg-white  rounded-lg shadow">
-                            <a href="<?php echo "/urbanpulse_ecommerce_beta/product/?id=" . $products_data["id"] . "&clicked=true"; ?>" class="w-4/5 flex justify-center items-center 
-                        aspect-square overflow-hidden mx-auto">
-                                <?php
-                                $product_img_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$products_data["id"]]);
-                                $product_img_data = $product_img_resultset->fetch_assoc();
-                                ?>
-                                <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $product_img_data["product_image"]; ?>" alt="product image" />
-                            </a>
-                            <div class="px-5 pb-5">
-                                <a href="<?php echo "/urbanpulse_ecommerce_beta/product/?id=" . $products_data["id"] . "&clicked=true"; ?>">
-                                    <h5 class="text-sm font-medium tracking-tight text-gray-900 font-fm-inter truncate"><?php echo $products_data["title"]; ?></h5>
-                                </a>
-                                <div class="flex items-center mt-2.5 mb-5">
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">5.0</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-md xl:text-xl font-bold text-gray-900 dark:text-white">$<?php echo $products_data["price"]; ?></span>
-                                    <?php
-                                    if (isset($_SESSION["user"])) {
-                                        $wishlist_resultset = Database::search("SELECT * FROM wishlist WHERE product_id=? AND users_id=?", [$products_data["id"], $user["id"]]);
-                                        $wishlist_num = $wishlist_resultset->num_rows;
-                                        if ($wishlist_num == 1) {
-                                            $wishlist_data = $wishlist_resultset->fetch_assoc();
-                                    ?>
-                                            <button onclick="removeFromWishlist(<?php echo $products_data['id'] ?>, <?php echo $wishlist_data['id'] ?>);" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                                <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                    favorite
-                                                </span>
-                                            </button>
-                                        <?php
-                                        } else if ($wishlist_num == 0) {
-                                        ?>
-                                            <button onclick="addToWishlist(<?php echo $products_data['id']; ?>,event)" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs px-4 py-1 capitalize font-fm-inter">
-                                                <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                    favorite
-                                                </span>
-                                            </button>
-                                        <?php
-                                        }
-                                    } else {
-                                        ?>
-                                        <button onclick="addToWishlist(<?php echo $products_data['id']; ?>,event)" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                            <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                favorite
-                                            </span>
-                                        </button>
-                                    <?php
-                                    }
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- product  -->
-                    <?php
-                    }
+                    $generator->generate_products($products_resultset, $user);
                     ?>
                 </div>
                 <button data-product-move-right="category-<?php echo $category_data["id"]; ?>" class="h-max w-max absolute right-0 top-1/2 -translate-y-1/2 transition-all duration-75 ease-linear bg-[var(--main-bg-low)] 

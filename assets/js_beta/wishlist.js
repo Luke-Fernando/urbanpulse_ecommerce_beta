@@ -64,8 +64,8 @@ class Wishlist {
     }
 
     async toggleWishlist(event) {
-        let targetBtn = event.target;
         let productId = event.target.getAttribute("data-toggle-wishlist");
+        let targetBtns = document.querySelectorAll(`[data-toggle-wishlist="${productId}"]`);
         let processLoadSpinner = new Spinner();
         let alert = new Alert("success");
         processLoadSpinner.addProcessLoadSpinner();
@@ -75,10 +75,19 @@ class Wishlist {
 
         try {
             let response = await this.connection.post(values, "../server/index.php?action=wishlist&process=toggle_wishlist");
-            if (response == "success") {
+            if (response == "added") {
                 processLoadSpinner.removeProcessLoadSpinner(() => {
-                    targetBtn.classList.toggle("bg-[var(--active-bg)]");
-                    targetBtn.classList.toggle("bg-[var(--main-bg-high)]");
+                    targetBtns.forEach((targetBtn) => {
+                        targetBtn.classList.add("bg-[var(--active-bg)]");
+                        targetBtn.classList.remove("bg-[var(--main-bg-high)]");
+                    });
+                });
+            } else if (response == "removed") {
+                processLoadSpinner.removeProcessLoadSpinner(() => {
+                    targetBtns.forEach((targetBtn) => {
+                        targetBtn.classList.remove("bg-[var(--active-bg)]");
+                        targetBtn.classList.add("bg-[var(--main-bg-high)]");
+                    });
                 });
             } else {
                 processLoadSpinner.removeProcessLoadSpinner(() => {

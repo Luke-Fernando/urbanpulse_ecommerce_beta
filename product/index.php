@@ -533,7 +533,7 @@ if (isset($_GET["id"])) {
                                         if ($wishlist_num == 1) {
                                             $wishlist_data = $wishlist_resultset->fetch_assoc();
                                     ?>
-                                            <button onclick="removeFromWishlist(<?php echo $related_products_data['id'] ?>, <?php echo $wishlist_data['id'] ?>);" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
+                                            <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
                     font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
                                                 <span class="material-symbols-outlined !text-lg pointer-events-none">
                                                     favorite
@@ -542,7 +542,7 @@ if (isset($_GET["id"])) {
                                         <?php
                                         } else if ($wishlist_num == 0) {
                                         ?>
-                                            <button onclick="addToWishlist(<?php echo $related_products_data['id']; ?>,event)" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
+                                            <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
                     font-medium text-xs px-4 py-1 capitalize font-fm-inter">
                                                 <span class="material-symbols-outlined !text-lg pointer-events-none">
                                                     favorite
@@ -552,7 +552,7 @@ if (isset($_GET["id"])) {
                                         }
                                     } else {
                                         ?>
-                                        <button onclick="addToWishlist(<?php echo $related_products_data['id']; ?>,event)" id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
+                                        <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
                     font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
                                             <span class="material-symbols-outlined !text-lg pointer-events-none">
                                                 favorite

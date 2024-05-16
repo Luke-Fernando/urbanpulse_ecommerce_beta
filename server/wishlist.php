@@ -83,10 +83,10 @@ class Wishlist
                 $wishlist_num = $wishlist_resultset->num_rows;
                 if ($wishlist_num == 1) {
                     Database::iud("DELETE FROM `wishlist` WHERE `product_id`=? AND `users_id`=?", [$product_id, $user["id"]]);
-                    echo ("success");
+                    echo ("removed");
                 } else if ($wishlist_num == 0) {
                     Database::iud("INSERT INTO `wishlist`(`product_id`,`users_id`) VALUES(?,?)", [$product_id, $user["id"]]);
-                    echo ("success");
+                    echo ("added");
                 } else {
                     echo ("Something went wrong!");
                 }
