@@ -72,4 +72,29 @@ class Wishlist
             }
         }
     }
+
+    public function toggle_wishlist()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["product_id"]) && !empty($_POST["product_id"])) {
+                $product_id = $_POST["product_id"];
+                $user = $_SESSION["user"];
+                $wishlist_resultset = Database::search("SELECT * FROM `wishlist` WHERE `product_id`=? AND `users_id`=?", [$product_id, $user["id"]]);
+                $wishlist_num = $wishlist_resultset->num_rows;
+                if ($wishlist_num == 1) {
+                    Database::iud("DELETE FROM `wishlist` WHERE `product_id`=? AND `users_id`=?", [$product_id, $user["id"]]);
+                    echo ("success");
+                } else if ($wishlist_num == 0) {
+                    Database::iud("INSERT INTO `wishlist`(`product_id`,`users_id`) VALUES(?,?)", [$product_id, $user["id"]]);
+                    echo ("success");
+                } else {
+                    echo ("Something went wrong!");
+                }
+            } else {
+                echo ("Something went wrong!");
+            }
+        } else {
+            echo ("Please signin or signup to your account");
+        }
+    }
 }

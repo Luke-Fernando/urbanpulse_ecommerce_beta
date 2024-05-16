@@ -877,6 +877,11 @@ class Product
                                                                     }
                                                                     if (!$is_available) {
                                                                         Database::iud("DELETE FROM `product_image` WHERE `id`=?;", [$old_image_id]);
+                                                                        // delete the image from the files
+                                                                        if (file_exists($old_image_data["product_image"])) {
+                                                                            unlink($old_image_data["product_image"]);
+                                                                        }
+                                                                        //
                                                                     }
                                                                 }
                                                                 if (count($_FILES) > 0) {

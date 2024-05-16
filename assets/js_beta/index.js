@@ -147,6 +147,7 @@ function wishlist() {
 
   callWishlistMethod("#add-to-wishlist-btn", "addToWishlist");
   callWishlistMethod("[data-wishlist-delete]", "removeFromWishlist");
+  callWishlistMethod("[data-toggle-wishlist]", "toggleWishlist");
 }
 
 wishlist();

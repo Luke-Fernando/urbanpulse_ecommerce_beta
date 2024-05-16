@@ -62,6 +62,33 @@ class Wishlist {
             console.error("Error:", error);
         }
     }
+
+    async toggleWishlist(event) {
+        let targetBtn = event.target;
+        let productId = event.target.getAttribute("data-toggle-wishlist");
+        let processLoadSpinner = new Spinner();
+        let alert = new Alert("success");
+        processLoadSpinner.addProcessLoadSpinner();
+        let values = [
+            { name: "product_id", data: productId },
+        ];
+
+        try {
+            let response = await this.connection.post(values, "../server/index.php?action=wishlist&process=toggle_wishlist");
+            if (response == "success") {
+                processLoadSpinner.removeProcessLoadSpinner(() => {
+                    targetBtn.classList.toggle("bg-[var(--active-bg)]");
+                    targetBtn.classList.toggle("bg-[var(--main-bg-high)]");
+                });
+            } else {
+                processLoadSpinner.removeProcessLoadSpinner(() => {
+                    alert.error(response);
+                });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
 }
 
 export default Wishlist;

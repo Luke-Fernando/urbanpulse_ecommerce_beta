@@ -128,6 +128,11 @@ if (isset($_GET["action"])) {
                 $wishlist->remove_from_wishlist();
             }
             // remove_from_wishlist 
+            // toggle_wishlist 
+            if ($_GET["process"] == "toggle_wishlist") {
+                $wishlist->toggle_wishlist();
+            }
+            // toggle_wishlist 
         }
         // cart
         // update_product
