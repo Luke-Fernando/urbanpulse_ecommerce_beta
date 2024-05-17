@@ -5,6 +5,9 @@ require "../navbar.php";
 require "../head.php";
 require "../components/customSelect.php";
 require "../components/InputElements.php";
+require "../client/php/client.php";
+
+$client = new Client();
 
 if (isset($_GET["id"])) {
     $product_id = $_GET["id"];
@@ -87,14 +90,14 @@ if (isset($_GET["id"])) {
                         for ($i = 0; $i < $image_num; $i++) {
                             if ($i == 0) {
                         ?>
-                                <div onclick="changeImage(event);" data-image-secondary class="aspect-square flex justify-center items-center overflow-hidden">
+                                <div data-product-image-selector data-image-secondary class="aspect-square flex justify-center items-center overflow-hidden">
                                     <img class="h-auto max-w-full rounded-lg min-h-full min-w-full object-cover pointer-events-none" src="../assets/images/products/<?php echo $primary_image["product_image"]; ?>" alt="">
                                 </div>
                             <?php
                             } else {
                                 $image_data = $image_resultset->fetch_assoc();
                             ?>
-                                <div onclick="changeImage(event);" data-image-secondary class="aspect-square flex justify-center items-center overflow-hidden">
+                                <div data-product-image-selector data-image-secondary class="aspect-square flex justify-center items-center overflow-hidden">
                                     <img class="h-auto max-w-full rounded-lg min-h-full min-w-full object-cover pointer-events-none" src="../assets/images/products/<?php echo $image_data["product_image"]; ?>" alt="">
                                 </div>
                         <?php
@@ -161,15 +164,15 @@ if (isset($_GET["id"])) {
                             <input value="0" type="text" id="quantity" class="bg-gray-50 border-l border-t border-b border-r-0 border-gray-300 text-gray-900 
                             focus:ring-blue-500 focus:border-blue-500 block font-fm-inter w-14 h-full px-3 text-base" disabled>
                             <div class="flex flex-col justify-center items-center h-full w-8 bg-gray-50 border-l-0 border-t border-b border-r border-gray-300">
-                                <button onclick="setQty(<?php echo $product_data['qty']; ?>,'up');" class="h-1/2 w-full overflow-hidden flex justify-center items-center 
+                                <button data-change-quantity="increase" class="h-1/2 w-full overflow-hidden flex justify-center items-center 
                                 transition-all duration-100 ease-linear hover:bg-gray-100">
-                                    <span class="material-symbols-outlined text-[var(--main-bg-high)] !text-3xl">
+                                    <span class="material-symbols-outlined text-[var(--main-bg-high)] !text-3xl pointer-events-none">
                                         arrow_drop_up
                                     </span>
                                 </button>
-                                <button onclick="setQty(<?php echo $product_data['qty']; ?>,'down');" class="h-1/2 w-full overflow-hidden flex justify-center items-center 
+                                <button data-change-quantity="decrease" class="h-1/2 w-full overflow-hidden flex justify-center items-center 
                                 transition-all duration-100 ease-linear hover:bg-gray-100">
-                                    <span class="material-symbols-outlined text-[var(--main-bg-high)] !text-3xl">
+                                    <span class="material-symbols-outlined text-[var(--main-bg-high)] !text-3xl pointer-events-none">
                                         arrow_drop_down
                                     </span>
                                 </button>
@@ -488,86 +491,7 @@ if (isset($_GET["id"])) {
                     <?php
                     $category = $product_data["category_id"];
                     $related_products_resultset = Database::search("SELECT * FROM `product` WHERE `category_id`=? LIMIT 10;", [$category]);
-                    $related_products_num = $related_products_resultset->num_rows;
-                    for ($i = 0; $i < $related_products_num; $i++) {
-                        $related_products_data = $related_products_resultset->fetch_assoc();
-                    ?>
-                        <!-- product  -->
-                        <div class="w-60 min:w-72 max:w-80 xl:w-80 bg-white  rounded-lg shadow">
-                            <a href="<?php echo "productPage.php?id=" . $related_products_data["id"] . "&clicked=true"; ?>" class="w-4/5 flex justify-center items-center 
-                        aspect-square overflow-hidden mx-auto">
-                                <?php
-                                $related_product_img_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$related_products_data["id"]]);
-                                $related_product_img_data = $related_product_img_resultset->fetch_assoc();
-                                ?>
-                                <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $related_product_img_data["product_image"]; ?>" alt="product image" />
-                            </a>
-                            <div class="px-5 pb-5">
-                                <a href="<?php echo "productPage.php?id=" . $related_products_data["id"] . "&clicked=true"; ?>">
-                                    <h5 class="text-sm truncate font-medium tracking-tight text-gray-900 font-fm-inter"><?php echo $related_products_data["title"]; ?></h5>
-                                </a>
-                                <div class="flex items-center mt-2.5 mb-5">
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <svg class="w-3 h-3 xl:w-4 xl:h-4 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                    </svg>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">5.0</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-lg xl:text-2xl font-bold text-gray-900 dark:text-white">$<?php echo $related_products_data["price"]; ?></span>
-                                    <?php
-                                    if (isset($_SESSION["user"])) {
-                                        $wishlist_resultset = Database::search("SELECT * FROM wishlist WHERE product_id=? AND users_id=?", [$related_products_data["id"], $user["id"]]);
-                                        $wishlist_num = $wishlist_resultset->num_rows;
-                                        if ($wishlist_num == 1) {
-                                            $wishlist_data = $wishlist_resultset->fetch_assoc();
-                                    ?>
-                                            <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--active-bg)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                                <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                    favorite
-                                                </span>
-                                            </button>
-                                        <?php
-                                        } else if ($wishlist_num == 0) {
-                                        ?>
-                                            <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs px-4 py-1 capitalize font-fm-inter">
-                                                <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                    favorite
-                                                </span>
-                                            </button>
-                                        <?php
-                                        }
-                                    } else {
-                                        ?>
-                                        <button id="add-to-wishlist" class="text-[var(--text-white-high)] bg-[var(--main-bg-high)] transition-all duration-200 ease-linear hover:bg-[var(--main-bg-low)] 
-                    font-medium text-xs xl:text-xs px-4 py-1 capitalize font-fm-inter">
-                                            <span class="material-symbols-outlined !text-lg pointer-events-none">
-                                                favorite
-                                            </span>
-                                        </button>
-                                    <?php
-                                    }
-                                    ?>
-
-                                </div>
-                            </div>
-                        </div>
-                        <!-- product  -->
-                    <?php
-                    }
+                    $client->generate_products($related_products_resultset, $user, "../");
                     ?>
                 </div>
                 <button data-product-move-right="related-products" class="h-max w-max absolute right-0 top-1/2 -translate-y-1/2 transition-all duration-75 ease-linear bg-[var(--main-bg-low)] 
@@ -579,9 +503,6 @@ if (isset($_GET["id"])) {
             </div>
         </section>
 
-        <script src="../assets/js/changeProductImg.js"></script>
-        <script src="../assets/js/setQty.js"></script>
-        <script src="../assets/js/scrollProducts.js"></script>
         <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
         <script type="module" src="../assets/js/payment.js"></script>
     </body>

@@ -1,8 +1,8 @@
 <?php
 
-class Generate
+class Client
 {
-    public function generate_products($resultset, $user)
+    public function generate_products($resultset, $user, $link)
     {
         $resultset_num = $resultset->num_rows;
         for ($i = 0; $i < $resultset_num; $i++) {
@@ -12,7 +12,7 @@ class Generate
 ?>
             <!-- product  -->
             <div class="w-60 min:w-72 max:w-80 xl:w-80 bg-white  rounded-lg shadow">
-                <a href="<?php echo "productPage.php?id=" . $product_data["id"] . "&clicked=true"; ?>" class="w-4/5 flex justify-center items-center 
+                <a href="<?php echo $link . "product/?id=" . $product_data["id"] . "&clicked=true"; ?>" class="w-4/5 flex justify-center items-center 
                         aspect-square overflow-hidden mx-auto">
                     <?php
                     $product_image_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$product_data["id"]]);
@@ -21,7 +21,7 @@ class Generate
                     <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $product_image_data["product_image"]; ?>" alt="product image" />
                 </a>
                 <div class="px-5 pb-5">
-                    <a href="<?php echo "productPage.php?id=" . $product_data["id"] . "&clicked=true"; ?>">
+                    <a href="<?php echo $link . "product/?id=" . $product_data["id"] . "&clicked=true"; ?>">
                         <h5 class="text-sm truncate font-medium tracking-tight text-gray-900 font-fm-inter"><?php echo $product_data["title"]; ?></h5>
                     </a>
                     <div class="flex items-center mt-2.5 mb-5">

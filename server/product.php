@@ -532,6 +532,22 @@ class Product
         }
     }
 
+    public function set_product_quantity()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["product_id"]) && !empty($_POST["product_id"])) {
+                $product_id = $_POST["product_id"];
+                $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$product_id]);
+                $product_num = $product_resultset->num_rows;
+                if ($product_num == 1) {
+                    $product_data = $product_resultset->fetch_assoc();
+                    $stock = $product_data["qty"];
+                    echo ($stock);
+                }
+            }
+        }
+    }
+
     // update product 
     public function load_product_data()
     {

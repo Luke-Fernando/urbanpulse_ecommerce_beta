@@ -81,6 +81,11 @@ if (isset($_GET["action"])) {
                 $product->list_product();
             }
             // list_product 
+            // set_product_quantity 
+            if ($_GET["process"] == "set_product_quantity") {
+                $product->set_product_quantity();
+            }
+            // set_product_quantity 
         }
         // product 
         // cart

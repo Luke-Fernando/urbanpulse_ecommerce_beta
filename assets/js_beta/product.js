@@ -10,6 +10,7 @@ class Product {
     this.shippingCostsArray = [];
     this.imagesArray = [];
     this.loadedImagesArray = [];
+    this.stock = null;
   }
 
   generateUniqueId(prefix = "item-id") {
@@ -156,7 +157,7 @@ class Product {
     }
   }
 
-  addColor() {
+  addColor(event) {
     let color = document.getElementById("color").options[document.getElementById("color").selectedIndex].text;
     let colorValue = document.getElementById("color").value;
     this.addProperty("colors", this.colorsArray, "color", color, colorValue);
@@ -165,7 +166,7 @@ class Product {
   removeColor(event) {
     this.removeProperty(event, this.colorsArray);
   }
-  addLocations() {
+  addLocations(event) {
     let location = document.getElementById("country").options[document.getElementById("country").selectedIndex].text;
     let locationValue = document.getElementById("country").value;
     this.addProperty("locations", this.locationsArray, "location", location, locationValue);
@@ -178,7 +179,7 @@ class Product {
     this.manageLocations();
     this.manageShippingCostLocations();
   }
-  addShippingCosts() {
+  addShippingCosts(event) {
     // {id: id, name: {country:country, value: value}, value: value}
     let country = document.getElementById("ship-country").options[document.getElementById("ship-country").selectedIndex].text;
     let countryValue = document.getElementById("ship-country").value;
@@ -248,7 +249,7 @@ class Product {
     };
   }
 
-  addImages() {
+  addImages(event) {
     const imageInput = document.getElementById("img-input");
     let imageFiles = imageInput.files;
     const imageContainer = document.getElementById("added-images");
@@ -293,7 +294,7 @@ class Product {
     }
   }
 
-  async loadBrands() {
+  async loadBrands(event) {
     let processLoadSpinner = new Spinner();
     processLoadSpinner.addProcessLoadSpinner();
     const categorySelect = document.getElementById("category");
@@ -315,7 +316,7 @@ class Product {
     }
   }
 
-  async loadModels() {
+  async loadModels(event) {
     let processLoadSpinner = new Spinner();
     processLoadSpinner.addProcessLoadSpinner();
     const brandSelect = document.getElementById("brand");
@@ -335,7 +336,7 @@ class Product {
     }
   }
 
-  async listProduct() {
+  async listProduct(event) {
     let processLoadSpinner = new Spinner();
     processLoadSpinner.addProcessLoadSpinner();
     let title = document.getElementById("title").value;
@@ -567,6 +568,50 @@ class Product {
     }
   }
   // update product 
+
+  async setProductQuantity(event) {
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let productId = urlParams.get('id');
+    const quantityInput = document.getElementById("quantity");
+
+    let setQuantity = () => {
+      console.log("Hello");
+      let quantity = Number(quantityInput.value);
+      let buttonFunction = event.target.getAttribute("data-change-quantity");
+      if (buttonFunction == "increase") {
+        if (quantity < this.stock) {
+          quantity++;
+          quantityInput.value = quantity;
+        }
+      } else if (buttonFunction == "decrease") {
+        if (quantity > 1) {
+          quantity--;
+          quantityInput.value = quantity;
+        }
+      }
+    }
+
+    if (this.stock == null) {
+      let processLoadSpinner = new Spinner();
+      processLoadSpinner.addProcessLoadSpinner();
+
+      let values = [{ name: "product_id", data: productId }];
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=product&process=set_product_quantity");
+        processLoadSpinner.removeProcessLoadSpinner(() => {
+          this.stock = Number(response);
+          setQuantity();
+        });
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    if (this.stock != null) {
+      setQuantity();
+    }
+  }
 }
 
 export default Product;

@@ -29,6 +29,7 @@ function head($title)
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js/sessionRefresh.js" defer></script>
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js/allProducts.js" defer></script>
         <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/assets/js_beta/index.js" defer></script>
+        <script type="module" src="http://<?php echo $root ?>/urbanpulse_ecommerce_beta/client/js/index.js" defer></script>
         <title><?php echo $title; ?></title>
     </head>
 <?php } ?>

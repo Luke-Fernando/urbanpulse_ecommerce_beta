@@ -4,9 +4,9 @@ require "../server/connection.php";
 require "../head.php";
 require "../navbar.php";
 require "../components/customSelect.php";
-require "../client/generate.php";
+require "../client/php/client.php";
 
-$generator = new Generate();
+$client = new Client();
 
 
 if (isset($_SESSION["user"])) {
@@ -129,7 +129,7 @@ head($title);
             <div data-product-move-target="popular-products" class="w-max flex transition-all duration-100 ease-linear relative">
                 <?php
                 $popular_products_resultset = Database::search("SELECT * FROM `product` ORDER BY `click_count` DESC LIMIT 10;", []);
-                $generator->generate_products($popular_products_resultset, $user);
+                $client->generate_products($popular_products_resultset, $user, "../");
                 ?>
             </div>
             <button data-product-move-right="popular-products" class="h-max w-max absolute right-0 top-1/2 -translate-y-1/2 transition-all duration-75 ease-linear bg-[var(--main-bg-low)] 
@@ -165,7 +165,7 @@ head($title);
                 <div data-product-move-target="category-<?php echo $category_data["id"]; ?>" class="w-max flex transition-all duration-100 ease-linear relative">
                     <?php
                     $products_resultset = Database::search("SELECT * FROM `product` WHERE `category_id`=?", [$category_data["id"]]);
-                    $generator->generate_products($products_resultset, $user);
+                    $client->generate_products($products_resultset, $user, "../");
                     ?>
                 </div>
                 <button data-product-move-right="category-<?php echo $category_data["id"]; ?>" class="h-max w-max absolute right-0 top-1/2 -translate-y-1/2 transition-all duration-75 ease-linear bg-[var(--main-bg-low)] 
@@ -182,8 +182,6 @@ head($title);
     }
     ?>
 
-    <script src="../assets/js/banner.js"></script>
-    <script src="../assets/js/scrollProducts.js"></script>
 </body>
 
 </html>

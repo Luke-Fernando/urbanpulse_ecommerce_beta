@@ -27,17 +27,19 @@ function addProduct() {
 
   // add product 
   function callProductMethod(triggerId, method, event = "click") {
-    let trigger = document.getElementById(triggerId);
-    if (trigger != null) {
-      trigger.addEventListener(event, () => {
-        if (product != null || product instanceof Product) {
-          product[method]();
-        } else {
-          product = new Product();
-          product[method]();
-        }
-      });
-    }
+    let triggers = document.querySelectorAll(triggerId);
+    triggers.forEach((trigger) => {
+      if (trigger != null) {
+        trigger.addEventListener(event, (e) => {
+          if (product != null || product instanceof Product) {
+            product[method](e);
+          } else {
+            product = new Product();
+            product[method](e);
+          }
+        });
+      }
+    });
   }
 
   function removeTag(containerId, method) {
@@ -76,19 +78,19 @@ function addProduct() {
   // update product
 
   // add product 
-  callProductMethod("add-color-btn", "addColor");
-  callProductMethod("add-location-btn", "addLocations");
-  callProductMethod("add-country-btn", "addShippingCosts");
+  callProductMethod("#add-color-btn", "addColor");
+  callProductMethod("#add-location-btn", "addLocations");
+  callProductMethod("#add-country-btn", "addShippingCosts");
   removeTag("colors", "removeColor");
   removeTag("locations", "removeLocations");
   removeTag("shipping-countries", "removeShippingCosts");
-  callProductMethod("img-input", "addImages", "change");
+  callProductMethod("#img-input", "addImages", "change");
   removeImage("added-images", "removeImages");
-  callProductMethod("category", "loadBrands", "change");
-  callProductMethod("brand", "loadModels", "change");
-  callProductMethod("shipping-type", "manageShippingTypes", "change");
-  callProductMethod("list-item-btn", "listProduct");
-  callProductMethod("add-to-cart", "addToCart");
+  callProductMethod("#category", "loadBrands", "change");
+  callProductMethod("#brand", "loadModels", "change");
+  callProductMethod("#list-item-btn", "listProduct");
+  callProductMethod("#add-to-cart", "addToCart");
+  callProductMethod("[data-change-quantity]", "setProductQuantity");
   // add product 
 
   // update product
