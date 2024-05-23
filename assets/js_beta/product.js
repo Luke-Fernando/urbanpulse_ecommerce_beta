@@ -1,6 +1,7 @@
 import Connection from "./connection.js";
 import Alert from "./alert.js";
 import Spinner from "./spinners.js";
+import Order from "./order.js";
 
 class Product {
   constructor() {
@@ -611,6 +612,57 @@ class Product {
     if (this.stock != null) {
       setQuantity();
     }
+  }
+
+  async getOrderDetails(event) {
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let productId = urlParams.get('id');
+    let quantity = document.getElementById("quantity").value;
+    let color = document.getElementById("color").value;
+    //
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    let alert = new Alert("success");
+    if (quantity > 0 && quantity != "") {
+      if (color > 0 && color != "") {
+        let products = [
+          {
+            "product_id": productId,
+            "quantity": quantity,
+            "color": color
+          }
+        ]
+        let values = [
+          { name: "products", data: JSON.stringify(products) }
+        ];
+        try {
+          let response = await this.connection.post(values, "../server/index.php?action=product&process=get_order_details");
+          if (response == "success") {
+            processLoadSpinner.removeProcessLoadSpinner(() => {
+              let order = new Order();
+              order.setProducts(productId, quantity, color);
+              order.sendToPlaceOrder("../");
+            });
+          } else {
+            processLoadSpinner.removeProcessLoadSpinner(() => {
+              alert.error(response);
+            });
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      } else {
+        processLoadSpinner.removeProcessLoadSpinner(() => {
+          alert.error("Please select your color");
+        });
+      }
+    } else {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your quantity");
+      });
+    }
+    //
   }
 }
 

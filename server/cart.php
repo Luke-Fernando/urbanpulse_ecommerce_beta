@@ -168,4 +168,34 @@ class Cart
             }
         }
     }
+
+    public function get_order_details()
+    {
+        if (isset($_SESSION["user"])) {
+            $user = $_SESSION["user"];
+            //
+            $cart_resultset = Database::search("SELECT * FROM `cart` WHERE `users_id`=?;", [$user["id"]]);
+            $cart_num = $cart_resultset->num_rows;
+            $products = array();
+            if ($cart_num > 0) {
+                for ($i = 0; $i < $cart_num; $i++) {
+                    $cart_data = $cart_resultset->fetch_assoc();
+                    $product_id = $cart_data["product_id"];
+                    $color = $cart_data["color_id"];
+                    $quantity = $cart_data["qty"];
+                    $current_product = array(
+                        "product_id" => $product_id,
+                        "quantity" => $quantity,
+                        "color" => $color
+                    );
+                    array_push($products, $current_product);
+                }
+                echo json_encode($products);
+            }
+            //
+
+        } else {
+            echo ("Please signin or signup to ypur account");
+        }
+    }
 }

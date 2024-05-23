@@ -1,6 +1,7 @@
 import Connection from "./connection.js";
 import Alert from "./alert.js";
 import Spinner from "./spinners.js";
+import Order from "./order.js";
 
 class Cart {
 
@@ -151,6 +152,30 @@ class Cart {
         }
     }
 
+    async getOrderDetails(event) {
+        //
+        let processLoadSpinner = new Spinner();
+        processLoadSpinner.addProcessLoadSpinner();
+        let values = [];
+        try {
+            let response = await this.connection.post(values, "../server/index.php?action=cart&process=get_order_details");
+            let products = JSON.parse(response);
+            processLoadSpinner.removeProcessLoadSpinner(() => {
+                let order = new Order();
+                for (let i = 0; i < products.length; i++) {
+                    let currentProduct = products[i];
+                    let productId = currentProduct.product_id;
+                    let quantity = currentProduct.quantity;
+                    let color = currentProduct.color;
+                    order.setProducts(productId, quantity, color);
+                }
+                order.sendToPlaceOrder("../");
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
+        //
+    }
 }
 
 export default Cart;

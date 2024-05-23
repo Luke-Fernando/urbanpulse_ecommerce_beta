@@ -548,6 +548,76 @@ class Product
         }
     }
 
+    public function get_order_details()
+    {
+        if (isset($_SESSION["user"])) {
+            if (isset($_POST["products"])) {
+                if (sizeof(json_decode($_POST["products"])) > 0) {
+                    $products = json_decode($_POST["products"]);
+                    $is_data_correct = null;
+                    foreach ($products as $product) {
+                        $product_id = $product->product_id;
+                        $quantity = $product->quantity;
+                        $color = $product->color;
+                        // verification 
+                        if ($product_id != null && $product_id != "" && $product_id > 0) {
+                            if ($quantity != null && $quantity != "" && $quantity > 0) {
+                                if ($color != null && $color != "" && $color > 0) {
+                                    $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?;", [$product_id]);
+                                    $product_num = $product_resultset->num_rows;
+                                    if ($product_num == 1) {
+                                        $product_data = $product_resultset->fetch_assoc();
+                                        $stock = $product_data["qty"];
+                                        if ($stock >= $quantity) {
+                                            $product_has_color_resultset = Database::search(
+                                                "SELECT * FROM `product_has_color` WHERE `product_id`=? AND `color_id`=?;",
+                                                [$product_id, $color]
+                                            );
+                                            $product_has_color_num = $product_has_color_resultset->num_rows;
+                                            if ($product_has_color_num == 1) {
+                                                $is_data_correct = true;
+                                            } else {
+                                                $is_data_correct = false;
+                                                break;
+                                            }
+                                        } else {
+                                            $is_data_correct = false;
+                                            break;
+                                        }
+                                    } else {
+                                        $is_data_correct = false;
+                                        break;
+                                    }
+                                } else {
+                                    $is_data_correct = false;
+                                    break;
+                                }
+                            } else {
+                                $is_data_correct = false;
+                                break;
+                            }
+                        } else {
+                            $is_data_correct = false;
+                            break;
+                        }
+                        // verification 
+                    }
+                    if ($is_data_correct) {
+                        echo ("success");
+                    } else {
+                        echo ("Something went wrong!");
+                    }
+                } else {
+                    echo ("Something went wrong!");
+                }
+            } else {
+                echo ("Something went wrong!");
+            }
+        } else {
+            echo ("Please signin or signup to ypur account");
+        }
+    }
+
     // update product 
     public function load_product_data()
     {

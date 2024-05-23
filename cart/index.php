@@ -222,7 +222,7 @@ if (isset($_SESSION["user"])) {
                         <p class="font-fm-inter capitalize text-xl text-gray-900 font-medium">subtotal</p>
                         <p class="font-fm-inter capitalize text-xl text-gray-900 font-medium">US $<?php echo $subtotal; ?></p>
                     </div>
-                    <button type="button" class="w-full text-white bg-[var(--main-bg-low)] hover:bg-[var(--main-bg-high)] focus:ring-0 transition-all 
+                    <button id="checkout-btn" type="button" class="w-full text-white bg-[var(--main-bg-low)] hover:bg-[var(--main-bg-high)] focus:ring-0 transition-all 
                 duration-100 ease-linear font-medium rounded-lg text-lg py-2.5 mt-5 font-fm-inter capitalize">go to checkout</button>
                 </section>
                 <!-- sub total  -->

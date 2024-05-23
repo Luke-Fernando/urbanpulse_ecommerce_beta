@@ -14,8 +14,9 @@ function callSpinner() {
             }
         };
     }
-
     pageLoadSpinner();
 }
 
-callSpinner();
+document.addEventListener("DOMContentLoaded", () => {
+    callSpinner();
+});

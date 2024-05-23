@@ -2058,6 +2058,10 @@ input:checked + .toggle-bg {
   width: 6rem;
 }
 
+.w-28 {
+  width: 7rem;
+}
+
 .w-3 {
   width: 0.75rem;
 }
@@ -5807,10 +5811,6 @@ input:checked + .toggle-bg {
     width: 12rem;
   }
 
-  .md\:w-52 {
-    width: 13rem;
-  }
-
   .md\:w-\[15\%\] {
     width: 15%;
   }
@@ -5819,8 +5819,16 @@ input:checked + .toggle-bg {
     width: 30%;
   }
 
+  .md\:w-\[38\%\] {
+    width: 38%;
+  }
+
   .md\:w-\[48\%\] {
     width: 48%;
+  }
+
+  .md\:w-\[58\%\] {
+    width: 58%;
   }
 
   .md\:w-\[70\%\] {
@@ -5946,10 +5954,6 @@ input:checked + .toggle-bg {
 
   .lg\:w-7\/12 {
     width: 58.333333%;
-  }
-
-  .lg\:w-72 {
-    width: 18rem;
   }
 
   .lg\:w-\[38\%\] {

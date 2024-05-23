@@ -1,4 +1,5 @@
 import Cart from "./cart.js";
+import Order from "./order.js";
 import Product from "./product.js";
 import User from "./user.js";
 import Wishlist from "./wishlist.js";
@@ -91,10 +92,11 @@ function addProduct() {
   callProductMethod("#list-item-btn", "listProduct");
   callProductMethod("#add-to-cart", "addToCart");
   callProductMethod("[data-change-quantity]", "setProductQuantity");
+  callProductMethod("#buy-now-btn", "getOrderDetails");
   // add product 
 
   // update product
-  initializeData("#update-product");
+  initializeData("#update-product", "loadProductData");
   removeImage("added-images", "removeLoadedImages");
   callProductMethod("update-item-btn", "updateProduct");
   // update product
@@ -125,6 +127,7 @@ function cart() {
   callCartMethod("[data-cart-wishlist]", "cartToWishlist");
   callCartMethod("[data-cart-decrease]", "decreaseCartQuantity");
   callCartMethod("[data-cart-increase]", "increaseCartQuantity");
+  callCartMethod("#checkout-btn", "getOrderDetails");
 }
 
 cart();
@@ -157,39 +160,43 @@ function wishlist() {
 wishlist();
 
 
-function updateProduct() {
-  let product;
+function order() {
+  let order;
 
-  function initializeData(triggerId) {
+  function callOrderMethod(triggerId, method, event = "click") {
+    let triggers = document.querySelectorAll(triggerId);
+    triggers.forEach((trigger) => {
+      if (trigger != null) {
+        trigger.addEventListener(event, (e) => {
+          if (prorderoduct != null || order instanceof Order) {
+            order[method](e);
+          } else {
+            order = new Order();
+            order[method](e);
+          }
+        });
+      }
+    });
+  }
+
+  function initializeData(triggerId, method) {
     let trigger = document.querySelector(triggerId);
     if (trigger != null) {
       document.addEventListener("DOMContentLoaded", (e) => {
-        if (product != null || product instanceof Product) {
-          product.loadProductData(e);
+        if (order != null || order instanceof Product) {
+          order[method](e);
         } else {
-          product = new Product();
-          product.loadProductData(e);
+          order = new Order();
+          order[method](e);
         }
       });
     }
   }
 
-  function callUpdateProductMethod(triggerId, method, event = "click") {
-    let trigger = document.querySelector(triggerId);
-    if (trigger != null) {
-      trigger.addEventListener(event, (e) => {
-        if (product != null || product instanceof Product) {
-          product[method](e);
-        } else {
-          product = new Product();
-          product[method](e);
-        }
-      });
-    }
-  }
+  // callOrderMethod("#add-color-btn", "addColor");
 
-  initializeData("#update-product");
-  // callUpdateProductMethod("#update-product", "loadProductData", "DOMContentLoaded");
+  initializeData("#place-order", "generatePlacedProducts");
+  // initializeData("#place-order", "generatePlacedProductsCosts");
 }
 
-// updateProduct();
+order();

@@ -86,6 +86,11 @@ if (isset($_GET["action"])) {
                 $product->set_product_quantity();
             }
             // set_product_quantity 
+            // get_order_details 
+            if ($_GET["process"] == "get_order_details") {
+                $product->get_order_details();
+            }
+            // get_order_details 
         }
         // product 
         // cart
@@ -117,6 +122,11 @@ if (isset($_GET["action"])) {
                 $cart->increase_cart_quantity();
             }
             // increase_cart_quantity 
+            // get_order_details 
+            if ($_GET["process"] == "get_order_details") {
+                $cart->get_order_details();
+            }
+            // get_order_details 
         }
         // cart
         // wishlist
@@ -139,7 +149,7 @@ if (isset($_GET["action"])) {
             }
             // toggle_wishlist 
         }
-        // cart
+        // wishlist
         // update_product
         if ($_GET["action"] == "update_product") {
             require "./product.php";
@@ -156,5 +166,21 @@ if (isset($_GET["action"])) {
             // update_product 
         }
         // update_product
+        // order
+        if ($_GET["action"] == "order") {
+            require "./order.php";
+            $order = new Order();
+            // generate_placed_products 
+            if ($_GET["process"] == "generate_placed_products") {
+                $order->generate_placed_products();
+            }
+            // generate_placed_products
+            // generate_placed_products_costs 
+            if ($_GET["process"] == "generate_placed_products_costs") {
+                $order->generate_placed_products_costs();
+            }
+            // generate_placed_products_costs
+        }
+        // order
     }
 }
