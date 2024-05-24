@@ -68,6 +68,78 @@ class Order
         }
     }
 
+    public function calculate_costs($products, $user)
+    {
+        $items = sizeof($products);
+        $items_total = 0;
+        $shipping_total = 0;
+        $subtotal = 0;
+        foreach ($products as $product) {
+            $product_id = $product->product;
+            $quantity = $product->quantity;
+            $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?;", [$product_id]);
+            $product_num = $product_resultset->num_rows;
+            if ($product_num == 1) {
+                $product_data = $product_resultset->fetch_assoc();
+                $price = $product_data["price"];
+                $items_total = $items_total + ($price * $quantity);
+                // //
+                // check shipping availability
+                $is_shipping_available = true;
+                $shipping_resultset = Database::search("SELECT * FROM `shipping` WHERE `product_id`=?;", [$product_id]);
+                $shipping_option_worldwide_resultset = Database::search("SELECT * FROM `shipping_option` WHERE `shipping_option`=?;", ["Worldwide"]);
+                $shipping_option_worldwide_data = $shipping_option_worldwide_resultset->fetch_assoc();
+                $shipping_data = $shipping_resultset->fetch_assoc();
+                if ($shipping_data["shipping_option_id"] == $shipping_option_worldwide_data["id"]) {
+                    $is_shipping_available = true;
+                } else {
+                    $shipping_available_resultset = Database::search(
+                        "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
+                        [$shipping_data["id"], $user["country_id"]]
+                    );
+                    $shipping_available_num = $shipping_available_resultset->num_rows;
+                    if ($shipping_available_num == 0) {
+                        $is_shipping_available = false;
+                        array_push($shippping_unavailable_products, $product_data["id"]);
+                    } else if ($shipping_available_num == 1) {
+                        $is_shipping_available = true;
+                    }
+                }
+                // check shipping availability
+                $item_shipping_cost = 0;
+                if ($is_shipping_available) {
+                    $shipping_cost_resultset = Database::search(
+                        "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
+                        [$shipping_data["id"], $user["country_id"]]
+                    );
+                    $shipping_cost_data = $shipping_cost_resultset->fetch_assoc();
+                    $shipping_cost_num = $shipping_cost_resultset->num_rows;
+                    if ($shipping_cost_num == 0) {
+                        $item_shipping_cost = $shipping_data["general_cost"];
+                    } else if ($shipping_cost_num == 1) {
+                        if ($shipping_cost_data["shipping_cost"] == null) {
+                            $item_shipping_cost = $shipping_data["general_cost"];
+                        } else {
+                            $item_shipping_cost = $shipping_cost_data["shipping_cost"];
+                        }
+                    }
+
+                    $item_shipping_cost_total = $item_shipping_cost * $quantity;
+                    $shipping_total += $item_shipping_cost_total;
+                }
+                // //
+            }
+        }
+        $subtotal = $items_total + $shipping_total;
+        $details_array = array(
+            "items" => $items,
+            "items_total" => $items_total,
+            "shipping_total" => $shipping_total,
+            "subtotal" => $subtotal
+        );
+        return $details_array;
+    }
+
     public function generate_placed_products_costs()
     {
         if ($this->check_session()) {
@@ -75,74 +147,94 @@ class Order
                 if (sizeof(json_decode($_POST["products"])) > 0) {
                     $user = $_SESSION["user"];
                     $products = json_decode($_POST["products"]);
-                    $items = sizeof(json_decode($_POST["products"]));
-                    $items_total = 0;
-                    $shipping_total = 0;
-                    $subtotal = 0;
-                    foreach ($products as $product) {
+                    echo json_encode($this->calculate_costs($products, $user));
+                }
+            }
+        }
+    }
+
+    public function generate_order_id()
+    {
+        return uniqid();
+    }
+
+    public function generate_hash($merchant_id, $order_id, $amount, $currency, $merchant_secret)
+    {
+        $hash = strtoupper(
+            md5(
+                $merchant_id .
+                    $order_id .
+                    number_format($amount, 2, '.', '') .
+                    $currency .
+                    strtoupper(md5($merchant_secret))
+            )
+        );
+        return $hash;
+    }
+
+    public function place_order()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["products"])) {
+                if (sizeof(json_decode($_POST["products"])) > 0) {
+                    $products = json_decode($_POST["products"]);
+                    $user = $_SESSION["user"];
+                    $order_id = $this->generate_order_id();
+                    $merchant_id = $_ENV["MERCHANT_ID"];
+                    $merchant_secret = $_ENV["MERCHANT_SECRET"];
+                    $currency = "USD";
+                    $costs = $this->calculate_costs($products, $user);
+                    $amount = $costs["subtotal"];
+                    $hash = $this->generate_hash($merchant_id, $order_id, $amount, $currency, $merchant_secret);
+                    $first_name = $user["first_name"];
+                    $last_name = $user["last_name"];
+                    $email = $user["email"];
+                    $country_code_resultset = Database::search("SELECT * FROM `country_code` WHERE `id`=?;", [$user["country_code_id"]]);
+                    $country_code_data = $country_code_resultset->fetch_assoc();
+                    $country_code = $country_code_data["country_code"];
+                    $mobile = $user["mobile"];
+                    $phone = $country_code . "" . $mobile;
+                    $address = $user["address_line_1"] . ", " . $user["address_line_2"];
+                    $city = $user["city"];
+                    $country_resultset = Database::search("SELECT * FROM `country` WHERE `id`=?;", [$user["country_id"]]);
+                    $country_data = $country_resultset->fetch_assoc();
+                    $country = $country_data["country"];
+                    $payment = array(
+                        "sandbox" => true,
+                        "merchant_id" => $_ENV["MERCHANT_ID"],
+                        "return_url" => null,     // Important
+                        "cancel_url" => null,     // Important
+                        "notify_url" => null,
+                        "order_id" => $order_id,
+                        "items" => $order_id,
+                        "amount" => $amount,
+                        "currency" => $currency,
+                        "hash" => $hash,
+                        "first_name" => $first_name,
+                        "last_name" => $last_name,
+                        "email" => $email,
+                        "phone" => $phone,
+                        "address" => $address,
+                        "city" => $city,
+                        "country" => $country,
+                        "delivery_address" => $address,
+                        "delivery_city" => $city,
+                        "delivery_country" => $country
+                    );
+                    $products_count = sizeof($products);
+                    for ($i = 0; $i < $products_count; $i++) {
+                        $product = $products[$i];
                         $product_id = $product->product;
                         $quantity = $product->quantity;
                         $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?;", [$product_id]);
-                        $product_num = $product_resultset->num_rows;
-                        if ($product_num == 1) {
-                            $product_data = $product_resultset->fetch_assoc();
-                            $price = $product_data["price"];
-                            $items_total = $items_total + ($price * $quantity);
-                            // //
-                            // check shipping availability
-                            $is_shipping_available = true;
-                            $shipping_resultset = Database::search("SELECT * FROM `shipping` WHERE `product_id`=?;", [$product_id]);
-                            $shipping_option_worldwide_resultset = Database::search("SELECT * FROM `shipping_option` WHERE `shipping_option`=?;", ["Worldwide"]);
-                            $shipping_option_worldwide_data = $shipping_option_worldwide_resultset->fetch_assoc();
-                            $shipping_data = $shipping_resultset->fetch_assoc();
-                            if ($shipping_data["shipping_option_id"] == $shipping_option_worldwide_data["id"]) {
-                                $is_shipping_available = true;
-                            } else {
-                                $shipping_available_resultset = Database::search(
-                                    "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
-                                    [$shipping_data["id"], $user["country_id"]]
-                                );
-                                $shipping_available_num = $shipping_available_resultset->num_rows;
-                                if ($shipping_available_num == 0) {
-                                    $is_shipping_available = false;
-                                    array_push($shippping_unavailable_products, $product_data["id"]);
-                                } else if ($shipping_available_num == 1) {
-                                    $is_shipping_available = true;
-                                }
-                            }
-                            // check shipping availability
-                            $item_shipping_cost = 0;
-                            if ($is_shipping_available) {
-                                $shipping_cost_resultset = Database::search(
-                                    "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
-                                    [$shipping_data["id"], $user["country_id"]]
-                                );
-                                $shipping_cost_data = $shipping_cost_resultset->fetch_assoc();
-                                $shipping_cost_num = $shipping_cost_resultset->num_rows;
-                                if ($shipping_cost_num == 0) {
-                                    $item_shipping_cost = $shipping_data["general_cost"];
-                                } else if ($shipping_cost_num == 1) {
-                                    if ($shipping_cost_data["shipping_cost"] == null) {
-                                        $item_shipping_cost = $shipping_data["general_cost"];
-                                    } else {
-                                        $item_shipping_cost = $shipping_cost_data["shipping_cost"];
-                                    }
-                                }
-
-                                $item_shipping_cost_total = $item_shipping_cost * $quantity;
-                                $shipping_total += $item_shipping_cost_total;
-                            }
-                            // //
-                        }
+                        $product_data = $product_resultset->fetch_assoc();
+                        $title = $product_data["title"];
+                        $payment["item_name_" . $i + 1] = $title;
+                        $payment["quantity_" . $i + 1] = $quantity;
                     }
-                    $subtotal = $items_total + $shipping_total;
-                    $details_array = array(
-                        "items" => $items,
-                        "items_total" => $items_total,
-                        "shipping_total" => $shipping_total,
-                        "subtotal" => $subtotal
-                    );
-                    echo json_encode($details_array);
+
+                    echo (json_encode($payment));
+                    // echo ("success");
                 }
             }
         }

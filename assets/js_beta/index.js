@@ -168,7 +168,7 @@ function order() {
     triggers.forEach((trigger) => {
       if (trigger != null) {
         trigger.addEventListener(event, (e) => {
-          if (prorderoduct != null || order instanceof Order) {
+          if (order != null || order instanceof Order) {
             order[method](e);
           } else {
             order = new Order();
@@ -193,7 +193,7 @@ function order() {
     }
   }
 
-  // callOrderMethod("#add-color-btn", "addColor");
+  callOrderMethod("#place-order-btn", "loadPayhere");
 
   initializeData("#place-order", "generatePlacedProducts");
   // initializeData("#place-order", "generatePlacedProductsCosts");

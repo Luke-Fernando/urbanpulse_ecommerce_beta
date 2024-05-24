@@ -1,5 +1,6 @@
 import Alert from "./alert.js";
 import Connection from "./connection.js";
+import Spinner from "./spinners.js";
 
 class Order {
     constructor() {
@@ -83,6 +84,66 @@ class Order {
             });
         }
         //
+    }
+
+    async loadPayhere(event) {
+        if (this.payhere == null) {
+            const script = document.createElement('script');
+            script.src = 'https://www.payhere.lk/lib/payhere.js';
+            script.type = 'text/javascript';
+            script.onload = () => {
+                this.placeOrder();
+            }
+            document.head.appendChild(script);
+        } else {
+            this.placeOrder(this.payhere);
+        }
+    }
+
+    async placeOrder() {
+        console.log(payhere);
+        let alert = new Alert("success");
+        let processLoadSpinner = new Spinner();
+        processLoadSpinner.addProcessLoadSpinner();
+        //
+        let values = [
+            { name: "products", data: this.products },
+        ];
+        try {
+            let response = await this.connection.post(values, "../../server/index.php?action=order&process=place_order");
+            let payment = JSON.parse(response);
+            processLoadSpinner.removeProcessLoadSpinner(() => {
+                console.log(payment);
+            });
+            payhere.startPayment(payment);
+        } catch (error) {
+            processLoadSpinner.removeProcessLoadSpinner(() => {
+                alert.error("Something went wrong!");
+            });
+            console.error("Error:", error);
+        }
+        //
+        // Payment completed. It can be a successful failure.
+        payhere.onCompleted = function onCompleted(orderId) {
+            processLoadSpinner.removeProcessLoadSpinner();
+            alert.success(`Order ${orderId} placed successfully`);
+            // Note: validate the payment and show success or failure page to the customer
+        };
+
+        // Payment window closed
+        payhere.onDismissed = function onDismissed() {
+            // Note: Prompt user to pay again or show an error page
+            processLoadSpinner.removeProcessLoadSpinner();
+            alert.success("Order dismissed successfully");
+        };
+
+        // Error occurred
+        payhere.onError = function onError(error) {
+            // Note: show an error page
+            processLoadSpinner.removeProcessLoadSpinner();
+            alert.error(error);
+        };
+
     }
 }
 

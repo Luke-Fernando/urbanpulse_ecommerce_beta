@@ -179,7 +179,12 @@ if (isset($_GET["action"])) {
             if ($_GET["process"] == "generate_placed_products_costs") {
                 $order->generate_placed_products_costs();
             }
-            // generate_placed_products_costs
+            // generate_placed_products_costs 
+            // place_order 
+            if ($_GET["process"] == "place_order") {
+                $order->place_order();
+            }
+            // place_order 
         }
         // order
     }
