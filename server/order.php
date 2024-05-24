@@ -13,8 +13,11 @@ class Order
         }
     }
 
-    public function __construct()
+    public function get_current_datetime()
     {
+        date_default_timezone_set('Asia/Colombo');
+        $current_datetime = date('Y-m-d H:i:s');
+        return $current_datetime;
     }
 
     public function generate_placed_products()
@@ -237,6 +240,148 @@ class Order
                     // echo ("success");
                 }
             }
+        }
+    }
+
+    public function record_order()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["products"])) {
+                if (sizeof(json_decode($_POST["products"])) > 0) {
+                    if (isset($_POST["order_id"])) {
+                        $products = json_decode($_POST["products"]);
+                        $order_id = $_POST["order_id"];
+                        $user = $_SESSION["user"];
+                        $costs = $this->calculate_costs($products, $user);
+                        //
+                        $order = $order_id;
+                        $users_id = $user["id"];
+                        $email = $user["email"];
+                        $address_line_1 = $user["address_line_1"];
+                        $address_line_2 = $user["address_line_2"];
+                        $city = $user["city"];
+                        $zip_code = $user["zip_code"];
+                        $country_id = $user["country_id"];
+                        $country_code_id = $user["country_code_id"];
+                        $mobile = $user["mobile"];
+                        $datetime_ordered = $this->get_current_datetime();
+                        $total_items = $costs["items"];
+                        $total_items_price = $costs["items_total"];
+                        $total_shipping_cost = $costs["shipping_total"];
+                        //
+                        Database::iud(
+                            "INSERT INTO `order`
+                        (`order`,`users_id`,`email`,`address_line_1`,`address_line_2`,`city`,`zip_code`,`country_id`,`country_code_id`,`mobile`,`datetime_ordered`,`total_items`,`total_items_price`,`total_shipping_cost`) VALUES
+                        (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                            [$order, $users_id, $email, $address_line_1, $address_line_2, $city, $zip_code, $country_id, $country_code_id, $mobile, $datetime_ordered, $total_items, $total_items_price, $total_shipping_cost]
+                        );
+                        $id = mysqli_insert_id(Database::$connection);
+                        $status = true;
+                        foreach ($products as $product) {
+                            $product_id = $product->product;
+                            $quantity = $product->quantity;
+                            $color = $product->color;
+                            $total_price = 0;
+                            $total_shipping_price = 0;
+                            $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?;", [$product_id]);
+                            $product_num = $product_resultset->num_rows;
+                            if ($product_num == 1) {
+                                $product_data = $product_resultset->fetch_assoc();
+                                $stock = $product_data["qty"];
+                                if ($stock >= $quantity) {
+                                    $color_resultset = Database::search("SELECT * FROM `color` WHERE `id`=?;", [$color]);
+                                    $color_num = $color_resultset->num_rows;
+                                    if ($color_num == 1) {
+                                        $product_has_color_resultset = Database::search("SELECT * FROM `product_has_color` WHERE `product_id`=? AND `color_id`=?;", [$product_id, $color]);
+                                        $product_has_color_num = $product_has_color_resultset->num_rows;
+                                        if ($product_has_color_num == 1) {
+                                            $price = $product_data["price"];
+                                            $total_price = $price * $quantity;
+                                            // //
+                                            // //
+                                            // check shipping availability
+                                            $is_shipping_available = true;
+                                            $shipping_resultset = Database::search("SELECT * FROM `shipping` WHERE `product_id`=?;", [$product_id]);
+                                            $shipping_option_worldwide_resultset = Database::search("SELECT * FROM `shipping_option` WHERE `shipping_option`=?;", ["Worldwide"]);
+                                            $shipping_option_worldwide_data = $shipping_option_worldwide_resultset->fetch_assoc();
+                                            $shipping_data = $shipping_resultset->fetch_assoc();
+                                            if ($shipping_data["shipping_option_id"] == $shipping_option_worldwide_data["id"]) {
+                                                $is_shipping_available = true;
+                                            } else {
+                                                $shipping_available_resultset = Database::search(
+                                                    "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
+                                                    [$shipping_data["id"], $user["country_id"]]
+                                                );
+                                                $shipping_available_num = $shipping_available_resultset->num_rows;
+                                                if ($shipping_available_num == 0) {
+                                                    $is_shipping_available = false;
+                                                    array_push($shippping_unavailable_products, $product_data["id"]);
+                                                } else if ($shipping_available_num == 1) {
+                                                    $is_shipping_available = true;
+                                                }
+                                            }
+                                            // check shipping availability
+                                            $item_shipping_cost = 0;
+                                            if ($is_shipping_available) {
+                                                $shipping_cost_resultset = Database::search(
+                                                    "SELECT * FROM `shipping_cost` WHERE `shipping_id`=? AND `country_id`=?",
+                                                    [$shipping_data["id"], $user["country_id"]]
+                                                );
+                                                $shipping_cost_data = $shipping_cost_resultset->fetch_assoc();
+                                                $shipping_cost_num = $shipping_cost_resultset->num_rows;
+                                                if ($shipping_cost_num == 0) {
+                                                    $item_shipping_cost = $shipping_data["general_cost"];
+                                                } else if ($shipping_cost_num == 1) {
+                                                    if ($shipping_cost_data["shipping_cost"] == null) {
+                                                        $item_shipping_cost = $shipping_data["general_cost"];
+                                                    } else {
+                                                        $item_shipping_cost = $shipping_cost_data["shipping_cost"];
+                                                    }
+                                                }
+
+                                                $total_shipping_price = $item_shipping_cost * $quantity;
+                                                Database::iud(
+                                                    "INSERT INTO `invoice`(`order_id`,`product_id`,`qty`,`color_id`,`total_price`,`total_shipping_price`) VALUES
+                                                (?,?,?,?,?,?)",
+                                                    [$id, $product_id, $quantity, $color, $total_price, $total_shipping_price]
+                                                );
+                                            } else {
+                                                $status = false;
+                                                break;
+                                            }
+                                            // //
+                                            // //
+                                        } else {
+                                            $status = false;
+                                            break;
+                                        }
+                                    } else {
+                                        $status = false;
+                                        break;
+                                    }
+                                } else {
+                                    $status = false;
+                                    break;
+                                }
+                            } else {
+                                $status = false;
+                                break;
+                            }
+                        }
+                        if ($status) {
+                            echo ("success");
+                        }
+                    } else {
+                        echo ("Something went wrong!");
+                    }
+                } else {
+                    echo ("Something went wrong!");
+                }
+            } else {
+                echo ("Something went wrong!");
+            }
+        } else {
+            echo ("Something went wrong!");
         }
     }
 }

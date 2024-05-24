@@ -124,9 +124,33 @@ class Order {
         }
         //
         // Payment completed. It can be a successful failure.
-        payhere.onCompleted = function onCompleted(orderId) {
-            processLoadSpinner.removeProcessLoadSpinner();
-            alert.success(`Order ${orderId} placed successfully`);
+        payhere.onCompleted = async (orderId) => {
+            processLoadSpinner.addProcessLoadSpinner();
+            //
+            let values = [
+                { name: "products", data: this.products },
+                { name: "order_id", data: orderId },
+            ];
+            try {
+                let response = await this.connection.post(values, "../../server/index.php?action=order&process=record_order");
+                if (response == "success") {
+                    processLoadSpinner.removeProcessLoadSpinner(() => {
+                        alert.success(`Order ${orderId} placed successfully`, () => {
+                            window.location.href = `../../invoice/?order_id=${orderId}`;
+                        });
+                    });
+                } else {
+                    processLoadSpinner.removeProcessLoadSpinner(() => {
+                        alert.error(response);
+                    })
+                }
+            } catch (error) {
+                processLoadSpinner.removeProcessLoadSpinner(() => {
+                    alert.error("Something went wrong!");
+                });
+                console.error("Error:", error);
+            }
+            //
             // Note: validate the payment and show success or failure page to the customer
         };
 

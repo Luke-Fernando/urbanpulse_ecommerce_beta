@@ -10,9 +10,15 @@ ini_set('display_errors', 1);
 if (isset($_SESSION["user"])) {
     $user = $_SESSION["user"];
     if (isset($_GET["order_id"])) {
-        $order_id = $_GET["order_id"];
-        $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `users_id`=? and `order_id`=?", [$user["id"], $order_id]);
+        $order = $_GET["order_id"];
+        $order_resultset = Database::search("SELECT * FROM `order` WHERE `order`=? AND `users_id`=?", [$order, $user["id"]]);
+        $order_data = $order_resultset->fetch_assoc();
+        $order_id = $order_data["id"];
+        $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `order_id`=?", [$order_id]);
         $invoice_num = $invoice_resultset->num_rows;
+        $item_total_price = $order_data["total_items_price"];
+        $total_shipping_cost = $order_data["total_shipping_cost"];
+        $subtotal = $item_total_price + $total_shipping_cost;
 ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -23,10 +29,6 @@ if (isset($_SESSION["user"])) {
 
 
         <body>
-            <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
-                <div class="spinner"></div>
-            </div>
-
             <?php navbar($user);
             ?>
             <!-- <div class="container mx-auto h-5 bg-red-500 sm:bg-gray-800 md:bg-blue-400 lg:bg-emerald-400 xl:bg-pink-400 2xl:bg-purple-500"></div> -->
@@ -45,58 +47,56 @@ if (isset($_SESSION["user"])) {
                 </nav>
                 <div class="w-full h-auto flex flex-col-reverse sm:flex-row justify-start sm:justify-between items-start sm:items-center border-b py-3">
                     <div class="w-max h-auto mt-3 sm:mt-0 max-w-full">
-                        <p class="font-fm-inter text-sm text-gray-950 capitalize truncate">order: <span class="text-[var(--active-bg)]"><?php echo $order_id; ?></span></p>
+                        <p class="font-fm-inter text-sm text-gray-950 capitalize truncate">order: <span class="text-[var(--active-bg)]"><?php echo $order; ?></span></p>
                     </div>
                     <div class="w-max h-auto">
-                        <p class="font-fm-inter text-xl text-gray-950 capitalize">total: <span id="invoice-total" class="text-[var(--main-bg-high)]">$1442.25</span></p>
+                        <p class="font-fm-inter text-xl text-gray-950 capitalize">total: <span id="invoice-total" class="text-[var(--main-bg-high)]">$<?php echo $subtotal; ?></span></p>
                     </div>
                 </div>
                 <div class="w-full flex flex-col md:flex-row justify-between items-start mt-10 border-b">
                     <div class="w-full md:w-[70%] h-auto flex flex-col justify-start items-start">
                         <?php
-                        $subtotal = 0;
-                        $total_delivery_fee = 0;
+                        $datetime_ordered = $order_data["datetime_ordered"];
+                        $datetime_object = new DateTime($datetime_ordered);
+                        $total_delivery_fee = $order_data["total_shipping_cost"];
                         for ($i = 0; $i < $invoice_num; $i++) {
                             $invoice_data = $invoice_resultset->fetch_assoc();
                             $product_quantity = $invoice_data["qty"];
-                            $datetime_added = $invoice_data["datetime_added"];
-                            $datetime_object = new DateTime($datetime_added);
                             $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$invoice_data["product_id"]]);
                             $product_data = $product_resultset->fetch_assoc();
                             $product_title = $product_data["title"];
                             $product_price = $product_data["price"];
-                            $subtotal += $invoice_data["total"];
                             $seller_resultset = Database::search("SELECT * FROM `users` WHERE `id`=?", [$product_data["users_id"]]);
                             $seller_data = $seller_resultset->fetch_assoc();
                             $product_image_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$product_data["id"]]);
                             $product_image_data = $product_image_resultset->fetch_assoc();
+                            $product_image = $product_image_data["product_image"];
                             $brand_has_model_resultset = Database::search("SELECT * FROM `brand_has_model` WHERE `id`=?", [$product_data["brand_has_model_id"]]);
                             $brand_has_model_data = $brand_has_model_resultset->fetch_assoc();
                             $brand_resultset = Database::search("SELECT * FROM `brand` WHERE `id`=?", [$brand_has_model_data["brand_id"]]);
                             $brand_data = $brand_resultset->fetch_assoc();
+                            $brand = $brand_data["brand"];
                             $model_resultset = Database::search("SELECT * FROM `model` WHERE `id`=?", [$brand_has_model_data["model_id"]]);
                             $model_data = $model_resultset->fetch_assoc();
+                            $model = $model_data["model"];
                             $color_resultset = Database::search("SELECT * FROM `color` WHERE `id`=?", [$invoice_data["color_id"]]);
                             $color_data = $color_resultset->fetch_assoc();
+                            $color = $color_data["color"];
                             $condition_resultset = Database::search("SELECT * FROM `condition` WHERE `id`=?", [$product_data["condition_id"]]);
                             $condition_data = $condition_resultset->fetch_assoc();
-                            $country_code_resultset = Database::search("SELECT * FROM `country_code` WHERE `id`=?", [$user["country_code_id"]]);
-                            $country_code_data = $country_code_resultset->fetch_assoc();
-                            $delivery_fee_resultset = Database::search("SELECT * FROM `delivery_fee` WHERE `product_id`=? AND `country_id`=?", [$product_data["id"], $country_code_data["country_id"]]);
-                            $delivery_fee_data = $delivery_fee_resultset->fetch_assoc();
-                            $total_delivery_fee += $delivery_fee_data["delivery_fee"];
-                            $address_line_1 = $user["address_line_1"];
-                            $address_line_2 = $user["address_line_2"];
-                            $city = $user["city"];
-                            $zip_code = $user["zip_code"];
-                            $country_resultset = Database::search("SELECT * FROM `country` WHERE `id`=?", [$user["country_id"]]);
+                            $condition = $condition_data["condition"];
+                            $address_line_1 = $order_data["address_line_1"];
+                            $address_line_2 = $order_data["address_line_2"];
+                            $city = $order_data["city"];
+                            $zip_code = $order_data["zip_code"];
+                            $country_resultset = Database::search("SELECT * FROM `country` WHERE `id`=?", [$order_data["country_id"]]);
                             $country_data = $country_resultset->fetch_assoc();
                             $country = $country_data["country"];
                         ?>
                             <!-- product details  -->
-                            <div class="w-full h-auto flex flex-col sm:flex-row justify-start sm:justify-between items-center sm:items-start">
+                            <div class="w-full h-auto flex flex-col sm:flex-row justify-start sm:justify-between items-center sm:items-start my-5">
                                 <div class="w-3/4 sm:w-60 box-border p-4 aspect-square flex justify-center items-center overflow-hidden">
-                                    <img src="../assets/images/products/<?php echo $product_image_data["product_image"]; ?>" alt="Product Image" class="min-w-full min-h-full object-cover">
+                                    <img src="../assets/images/products/<?php echo $product_image; ?>" alt="Product Image" class="min-w-full min-h-full object-cover">
                                 </div>
                                 <div class="w-full sm:flex-1 flex flex-col justify-between sm:justify-start items-start h-auto box-border py-2">
                                     <div class="w-full h-auto">
@@ -104,10 +104,10 @@ if (isset($_SESSION["user"])) {
                                     </div>
                                     <div class="w-full h-auto flex justify-between items-start mt-5">
                                         <div class="w-1/2 h-auto flex flex-col justify-start items-start">
-                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">brand: <?php echo $brand_data["brand"]; ?></p>
-                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1 line-clamp-1">model: <?php echo $model_data["model"]; ?></p>
-                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">color: <?php echo $color_data["color"]; ?></p>
-                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">condition: <?php echo $condition_data["condition"]; ?></p>
+                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">brand: <?php echo $brand; ?></p>
+                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1 line-clamp-1">model: <?php echo $model; ?></p>
+                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">color: <?php echo $color; ?></p>
+                                            <p class="font-fm-inter text-sm text-gray-800 capitalize my-1">condition: <?php echo $condition; ?></p>
                                         </div>
                                         <div class="w-max sm:w-1/2 h-auto flex flex-col justify-start items-start">
                                             <p class="font-fm-inter text-sm text-gray-900 capitalize my-1">quantity: <?php echo $product_quantity; ?></p>
@@ -129,24 +129,24 @@ if (isset($_SESSION["user"])) {
                         <h3 class="font-fm-inter text-lg font-medium text-left capitalize text-gray-950">total summary</h3>
                         <div class="w-full h-auto grid grid-cols-2 gap-2 mt-4 border-b border-gray-300 pb-3">
                             <div class="h-auto">
-                                <p class="font-fm-inter text-base text-left font-normal capitalize text-gray-900">subtotal:</p>
+                                <p class="font-fm-inter text-base text-left font-normal capitalize text-gray-900">total:</p>
                             </div>
                             <div class="h-auto">
-                                <p class="font-fm-inter text-base text-right font-normal capitalize text-gray-900">$<?php echo number_format($subtotal, 2); ?></p>
+                                <p class="font-fm-inter text-base text-right font-normal capitalize text-gray-900">$<?php echo number_format($item_total_price, 2); ?></p>
                             </div>
                             <div class="h-auto">
                                 <p class="font-fm-inter text-base text-left font-normal capitalize text-gray-900">delivery fee:</p>
                             </div>
                             <div class="h-auto">
-                                <p class="font-fm-inter text-base text-right font-normal capitalize text-gray-900">$<?php echo number_format($total_delivery_fee, 2); ?></p>
+                                <p class="font-fm-inter text-base text-right font-normal capitalize text-gray-900">$<?php echo number_format($total_shipping_cost, 2); ?></p>
                             </div>
                         </div>
                         <div class="w-full h-auto grid grid-cols-2 gap-2 mt-4 pb-3">
                             <div class="h-auto">
-                                <p class="font-fm-inter text-lg text-left font-normal capitalize text-gray-950">total:</p>
+                                <p class="font-fm-inter text-lg text-left font-normal capitalize text-gray-950">subtotal:</p>
                             </div>
                             <div class="h-auto">
-                                <p class="font-fm-inter text-lg text-right font-normal capitalize text-gray-950">$<?php echo number_format($subtotal + $total_delivery_fee, 2); ?></p>
+                                <p class="font-fm-inter text-lg text-right font-normal capitalize text-gray-950">$<?php echo number_format($subtotal, 2); ?></p>
                             </div>
                         </div>
 
@@ -176,9 +176,6 @@ if (isset($_SESSION["user"])) {
                     </div>
                 </div>
             </div>
-            <script>
-                document.getElementById("invoice-total").innerText = "<?php echo "$" . number_format($subtotal + $total_delivery_fee, 2); ?>"
-            </script>
         </body>
 
         </html>

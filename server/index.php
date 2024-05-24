@@ -185,6 +185,11 @@ if (isset($_GET["action"])) {
                 $order->place_order();
             }
             // place_order 
+            // record_order 
+            if ($_GET["process"] == "record_order") {
+                $order->record_order();
+            }
+            // record_order 
         }
         // order
     }
