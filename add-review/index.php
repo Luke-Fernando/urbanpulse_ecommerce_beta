@@ -7,10 +7,12 @@ require "../components/customSelect.php";
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 if (isset($_SESSION["user"])) {
-    if (isset($_GET["invoice_id"]) && isset($_GET["product_id"])) {
+    if (isset($_GET["invoice_id"])) {
         $user = $_SESSION["user"];
         $invoice_id = $_GET["invoice_id"];
-        $product_id = $_GET["product_id"];
+        $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `id`=?", [$invoice_id]);
+        $invoice_data = $invoice_resultset->fetch_assoc();
+        $product_id = $invoice_data["product_id"];
 ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -20,10 +22,6 @@ if (isset($_SESSION["user"])) {
         ?>
 
         <body>
-            <div id="loader" class="w-screen h-screen fixed top-0 left-0 overflow-hidden flex justify-center items-center z-50 bg-white">
-                <div class="spinner"></div>
-            </div>
-
             <?php navbar($user);
             ?>
             <div class="w-max fixed top-10 left-1/2 -translate-x-1/2 z-50">
@@ -62,9 +60,7 @@ if (isset($_SESSION["user"])) {
             </div>
 
             <?php
-            $review_resultset = Database::search("SELECT review.id,invoice_id,review.product_id,stars_count,title,description,review.datetime_added 
-            FROM `review` INNER JOIN `invoice` ON review.invoice_id=invoice.id WHERE 
-            invoice_id=? AND review.product_id=? AND users_id=?", [$invoice_id, $product_id, $user["id"]]);
+            $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id`=?;", [$invoice_id]);
             $review_num = $review_resultset->num_rows;
             if ($review_num == 0) {
             ?>

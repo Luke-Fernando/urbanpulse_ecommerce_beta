@@ -7,8 +7,8 @@ require "../components/customSelect.php";
 
 if (isset($_SESSION["user"])) {
     $user = $_SESSION["user"];
-    $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `users_id`=?", [$user["id"]]);
-    $invoice_num = $invoice_resultset->num_rows;
+    $order_resultset = Database::search("SELECT * FROM `order` WHERE `users_id`=?", [$user["id"]]);
+    $order_num = $order_resultset->num_rows;
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -63,49 +63,58 @@ if (isset($_SESSION["user"])) {
 
         <div class="container mx-auto h-auto flex flex-col justify-start items-center">
             <?php
-            for ($i = 0; $i < $invoice_num; $i++) {
-                $invoice_data = $invoice_resultset->fetch_assoc();
-                $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$invoice_data["product_id"]]);
-                $product_data = $product_resultset->fetch_assoc();
-                $product_title = $product_data["title"];
-                $product_img_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$invoice_data["product_id"]]);
-                $product_img_data = $product_img_resultset->fetch_assoc();
-                $quantity = $invoice_data["qty"];
-                $date = $invoice_data["datetime_added"];
-                $total = $invoice_data["total"];
-                $order_id = $invoice_data["order_id"];
+            for ($j = 0; $j < $order_num; $j++) {
+                $order_data = $order_resultset->fetch_assoc();
+                $order_id = $order_data["id"];
+                $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `order_id`=?", [$order_id]);
+                $invoice_num = $invoice_resultset->num_rows;
+                for ($i = 0; $i < $invoice_num; $i++) {
+                    $invoice_data = $invoice_resultset->fetch_assoc();
+                    $product_resultset = Database::search("SELECT * FROM `product` WHERE `id`=?", [$invoice_data["product_id"]]);
+                    $product_data = $product_resultset->fetch_assoc();
+                    $product_title = $product_data["title"];
+                    $product_img_resultset = Database::search("SELECT * FROM `product_image` WHERE `product_id`=? LIMIT 1", [$invoice_data["product_id"]]);
+                    $product_img_data = $product_img_resultset->fetch_assoc();
+                    $product_img = $product_img_data["product_image"];
+                    $quantity = $invoice_data["qty"];
+                    $date = $order_data["datetime_ordered"];
+                    $price = $invoice_data["total_price"];
+                    $shipping = $invoice_data["total_shipping_price"];
+                    $total = $price + $shipping;
+                    $order_id = $order_data["order"];
             ?>
-                <!-- order  -->
-                <div class="w-full border-b h-auto flex flex-wrap justify-start sm:justify-between items-start py-4">
-                    <a href="#" class="w-3/12 sm:w-56 aspect-square flex justify-center items-center overflow-hidden">
-                        <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $product_img_data["product_image"]; ?>" alt="">
-                    </a>
-                    <div class="w-3/4 sm:flex-1 h-auto box-border py-4 px-6 flex flex-col justify-start items-start">
-                        <div class="w-full h-auto">
-                            <a href="#" class="font-fm-inter line-clamp-2 font-normal text-sm lg:text-base"><?php echo $product_title; ?></a>
+                    <!-- order  -->
+                    <div class="w-full border-b h-auto flex flex-wrap justify-start sm:justify-between items-start py-4">
+                        <a href="#" class="w-3/12 sm:w-56 aspect-square flex justify-center items-center overflow-hidden">
+                            <img class="min-w-full min-h-full object-cover" src="../assets/images/products/<?php echo $product_img; ?>" alt="">
+                        </a>
+                        <div class="w-3/4 sm:flex-1 h-auto box-border py-4 px-6 flex flex-col justify-start items-start">
+                            <div class="w-full h-auto">
+                                <a href="#" class="font-fm-inter line-clamp-2 font-normal text-sm lg:text-base"><?php echo $product_title; ?></a>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium mt-1 px-2.5 py-0.5 rounded border border-green-400 font-fm-inter capitalize">purchased</span>
+                            <div class="w-max h-auto mt-4">
+                                <p class="font-fm-inter text-sm text-gray-600 capitalize">quantity: <?php echo $quantity; ?></p>
+                            </div>
+                            <div class="w-max h-auto mt-2">
+                                <p class="font-fm-inter text-sm text-gray-600 capitalize">date: <?php echo $date; ?></p>
+                            </div>
+                            <div class="w-max h-auto mt-4">
+                                <p class="font-fm-inter text-base text-gray-800 capitalize">total: $<?php echo $total; ?></p>
+                            </div>
                         </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium mt-1 px-2.5 py-0.5 rounded border border-green-400 font-fm-inter capitalize">purchased</span>
-                        <div class="w-max h-auto mt-4">
-                            <p class="font-fm-inter text-sm text-gray-600 capitalize">quantity: <?php echo $quantity; ?></p>
-                        </div>
-                        <div class="w-max h-auto mt-2">
-                            <p class="font-fm-inter text-sm text-gray-600 capitalize">date: <?php echo $date; ?></p>
-                        </div>
-                        <div class="w-max h-auto mt-4">
-                            <p class="font-fm-inter text-base text-gray-800 capitalize">total: $<?php echo $total; ?></p>
+                        <div class="w-full sm:w-max h-auto flex flex-row sm:flex-col justify-center sm:justify-start items-center sm:items-end box-content sm:p-4">
+                            <div class="w-max h-auto mx-3 sm:mx-0">
+                                <a href="/urbanpulse_ecommerce_beta/invoice/?order_id=<?php echo $order_id; ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">invoice</a>
+                            </div>
+                            <div class="w-max h-auto mx-3 sm:mx-0 sm:mt-5">
+                                <a href="/urbanpulse_ecommerce_beta/add-review/?invoice_id=<?php echo $invoice_data["id"] ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">review item</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="w-full sm:w-max h-auto flex flex-row sm:flex-col justify-center sm:justify-start items-center sm:items-end box-content sm:p-4">
-                        <div class="w-max h-auto mx-3 sm:mx-0">
-                            <a href="/urbanpulse_ecommerce_beta/invoice/?order_id=<?php echo $order_id; ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">invoice</a>
-                        </div>
-                        <div class="w-max h-auto mx-3 sm:mx-0 sm:mt-5">
-                            <a href="/urbanpulse_ecommerce_beta/add-review/?invoice_id=<?php echo $invoice_data["id"] ?>&product_id=<?php echo $invoice_data["product_id"] ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">review item</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- order  -->
+                    <!-- order  -->
             <?php
+                }
             }
             ?>
 
