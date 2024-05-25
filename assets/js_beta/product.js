@@ -12,6 +12,9 @@ class Product {
     this.imagesArray = [];
     this.loadedImagesArray = [];
     this.stock = null;
+    this.reviewStarCount = 0;
+    this.reviewImagesArray = [];
+    this.loadedReviewImagesArray = [];
   }
 
   generateUniqueId(prefix = "item-id") {
@@ -664,6 +667,264 @@ class Product {
     }
     //
   }
+
+  // review product
+
+  addStar(star, starIcon) {
+    let ratedClass = "!text-yellow-300";
+    let notRatedClass = "!text-gray-300";
+    star.checked = true;
+    starIcon.classList.add(ratedClass);
+    starIcon.classList.remove(notRatedClass);
+  }
+
+  removeStar(star, starIcon) {
+    let ratedClass = "!text-yellow-300";
+    let notRatedClass = "!text-gray-300";
+    star.checked = false;
+    starIcon.classList.remove(ratedClass);
+    starIcon.classList.add(notRatedClass);
+  }
+
+  rateStart(event) {
+    let changedStar = event.target;
+    let changedStarNum = Number(changedStar.getAttribute("data-rating-star"));
+
+    let updateStars = new Promise((resolve) => {
+      for (let i = 1; i < 6; i++) {
+        let currentStar = document.querySelector(`[data-rating-star="${i}"]`);
+        let currentStarIcon = document.querySelector(`[data-rating-star-icon="${i}"]`);
+        if (i <= changedStarNum) {
+          this.addStar(currentStar, currentStarIcon);
+        } else {
+          this.removeStar(currentStar, currentStarIcon);
+        }
+        if (i == 5) {
+          resolve();
+        }
+      }
+    });
+    updateStars.then(() => {
+      this.reviewStarCount = changedStarNum;
+    })
+  }
+
+  createAddedReviewImages(id, src) {
+    const item = document.createElement("div");
+    item.classList.add("aspect-square", "flex", "justify-center", "items-center", "overflow-hidden", "relative");
+    item.id = id;
+
+    const img = document.createElement("img");
+    img.classList.add("min-w-full", "min-h-full", "object-cover");
+    img.src = src;
+    item.appendChild(img);
+
+    const removeButton = document.createElement("button");
+    removeButton.classList.add("aspect-square", "absolute", "top-0", "right-0", "flex", "justify-center", "items-center", "transition-all", "duration-100", "ease-in-out", "text-gray-500", "hover:text-gray-950");
+    removeButton.setAttribute("data-remove-review-img", id);
+    item.appendChild(removeButton);
+
+    const removeIcon = document.createElement("span");
+    removeIcon.classList.add("material-symbols-outlined", "!text-lg", "!text-inherit", "p-2", "pointer-events-none");
+    removeIcon.innerText = "close";
+    removeButton.appendChild(removeIcon);
+
+    return item;
+  }
+
+  addReviewImages(event) {
+    const imageInput = document.getElementById("review-img-input");
+    let imageFiles = imageInput.files;
+    const imageContainer = document.getElementById("review-images");
+    for (let i = 0; i < imageFiles.length; i++) {
+      let file = imageFiles[i];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          let id = this.generateUniqueId("product-image");
+          const src = event.target.result;
+          imageContainer.appendChild(this.createAddedReviewImages(id, src));
+          this.reviewImagesArray.push(this.createImageArrayItem(id, file));
+          // }
+          // imageElement.src = src;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeReviewImages(event) {
+    if (event.target.matches("[data-remove-review-img]")) {
+      let itemId = event.target.getAttribute("data-remove-review-img");
+      let element = document.getElementById(itemId);
+      let index = this.reviewImagesArray.findIndex((item) => item.id === itemId);
+      if (index !== -1) {
+        this.reviewImagesArray.splice(index, 1);
+        element.parentNode.removeChild(element);
+      }
+    }
+  }
+
+  async addReview() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let invoiceId = urlParams.get('invoice_id');
+    let title = document.getElementById("title").value;
+    let description = document.getElementById("description").value;
+    let alert = new Alert("success");
+    if (title == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your title");
+      });
+    } else if (description == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your description");
+      });
+    } else {
+      let values = [
+        { name: "title", data: title },
+        { name: "description", data: description },
+        { name: "stars_count", data: this.reviewStarCount },
+        { name: "invoice_id", data: invoiceId },
+      ];
+      if (this.reviewImagesArray.length > 0) {
+        for (let image of this.reviewImagesArray) {
+          let imageNum = this.reviewImagesArray.indexOf(image);
+          values.push({ name: `image-${imageNum}`, data: image.file });
+        }
+      }
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=review&process=add_review");
+        if (response == "success") {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.success("Review added successfully", () => {
+              window.location.reload();
+            });
+          });
+        } else {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.error(response);
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
+  // review product
+
+  // update review 
+  async loadReviewData(event) {
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let invoiceId = urlParams.get('invoice_id');
+    let values = [
+      { name: "invoice_id", data: invoiceId }
+    ];
+    try {
+      let response = await this.connection.post(values, "../server/index.php?action=review&process=load_review_data");
+      let receivedData = JSON.parse(response);
+      // load star count
+      let starsCount = receivedData.stars_count;
+      let changedStarNum = Number(starsCount);
+
+      let updateStars = new Promise((resolve) => {
+        for (let i = 1; i < 6; i++) {
+          let currentStar = document.querySelector(`[data-rating-star="${i}"]`);
+          let currentStarIcon = document.querySelector(`[data-rating-star-icon="${i}"]`);
+          if (i <= changedStarNum) {
+            this.addStar(currentStar, currentStarIcon);
+          } else {
+            this.removeStar(currentStar, currentStarIcon);
+          }
+          if (i == 5) {
+            resolve();
+          }
+        }
+      });
+      updateStars.then(() => {
+        this.reviewStarCount = changedStarNum;
+      })
+      // load star count
+      // load images 
+      let images = receivedData.images;
+      images.forEach(element => {
+        let image = element.name;
+        let imageValue = element.value;
+        let currentImageArray = {
+          "name": image,
+          "value": imageValue
+        }
+        this.loadedReviewImagesArray.push(currentImageArray);
+      });
+      // load images 
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  removeLoadedReviewImages(event) {
+    if (event.target.matches("[data-loaded-review-image-remove]")) {
+      let itemId = event.target.getAttribute("data-loaded-review-image-remove");
+      let element = document.querySelector(`[data-loaded-review-image-item="${itemId}"]`);
+      let index = this.loadedReviewImagesArray.findIndex((item) => item.value == itemId);
+      if (index != -1) {
+        this.loadedReviewImagesArray.splice(index, 1);
+        element.parentNode.removeChild(element);
+      }
+    }
+  }
+
+  async updateReview() {
+    let processLoadSpinner = new Spinner();
+    processLoadSpinner.addProcessLoadSpinner();
+    let currentUrl = window.location.search;
+    let urlParams = new URLSearchParams(currentUrl);
+    let invoiceId = urlParams.get('invoice_id');
+    let title = document.getElementById("title").value;
+    let description = document.getElementById("description").value;
+    let alert = new Alert("success");
+    if (title == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your title");
+      });
+    } else if (description == "") {
+      processLoadSpinner.removeProcessLoadSpinner(() => {
+        alert.error("Please add your description");
+      });
+    } else {
+      let values = [
+        { name: "title", data: title },
+        { name: "description", data: description },
+        { name: "stars_count", data: this.reviewStarCount },
+        { name: "loaded_images", data: JSON.stringify(this.loadedReviewImagesArray) },
+        { name: "invoice_id", data: invoiceId }
+      ];
+      for (let image of this.reviewImagesArray) {
+        let imageNum = this.reviewImagesArray.indexOf(image);
+        values.push({ name: `image-${imageNum}`, data: image.file });
+      }
+      try {
+        let response = await this.connection.post(values, "../server/index.php?action=review&process=update_review");
+        if (response == "success") {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.success("Review updated successfully", () => {
+              window.location.reload();
+            });
+          });
+        } else {
+          processLoadSpinner.removeProcessLoadSpinner(() => {
+            alert.error(response);
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
+  // update review 
 }
 
 export default Product;

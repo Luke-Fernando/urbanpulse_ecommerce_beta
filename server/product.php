@@ -1025,4 +1025,229 @@ class Product
         }
     }
     // update product 
+
+    // add review 
+
+    public function list_review_image($image, $email, $review_id)
+    {
+        $target_directory = "../assets/images/review/";
+        $original_file_name = $image["name"];
+        $custom_file_name = $review_id . "_" . $email . "_" . uniqid() . "." . pathinfo($original_file_name, PATHINFO_EXTENSION);
+        $target_file = $target_directory . $custom_file_name;
+        $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $allowed_extensions = array("jpg", "jpeg", "png", "svg");
+        if (in_array($image_file_type, $allowed_extensions)) {
+            if (move_uploaded_file($image["tmp_name"], $target_file)) {
+                Database::iud(
+                    "INSERT INTO `review_image`(`review_image`,`review_id`) VALUES (?,?)",
+                    [$custom_file_name, $review_id]
+                );
+            }
+        }
+    }
+
+    public function add_review()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["title"]) && !empty($_POST["title"])) {
+                if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                    if (isset($_POST["stars_count"]) && !empty($_POST["stars_count"])) {
+                        if ($_POST["stars_count"] > 0 && $_POST["stars_count"] <= 5) {
+                            if (isset($_POST["invoice_id"]) && !empty($_POST["invoice_id"])) {
+                                $title = $_POST["title"];
+                                $description = $_POST["description"];
+                                $stars_count = $_POST["stars_count"];
+                                $invoice_id = $_POST["invoice_id"];
+                                $datetime_added = $this->get_current_datetime();
+                                $user = $_SESSION["user"];
+                                $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `id`=?;", [$invoice_id]);
+                                $invoice_num = $invoice_resultset->num_rows;
+                                if ($invoice_num == 1) {
+                                    $invoice_data = $invoice_resultset->fetch_assoc();
+                                    $order = $invoice_data["order_id"];
+                                    $order_resultset = Database::search("SELECT * FROM `order` WHERE `id`=? AND `users_id`=?;", [$order, $user["id"]]);
+                                    $order_num = $order_resultset->num_rows;
+                                    if ($order_num == 1) {
+                                        $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id`=?;", [$invoice_id]);
+                                        $review_num = $review_resultset->num_rows;
+                                        if ($review_num == 0) {
+                                            // success
+                                            Database::iud(
+                                                "INSERT INTO `review`(`invoice_id`,`stars_count`,`title`,`description`,`datetime_added`,`help_count`) VALUES
+                                            (?,?,?,?,?,?);",
+                                                [$invoice_id, $stars_count, $title, $description, $datetime_added, 0]
+                                            );
+                                            $review_id = mysqli_insert_id(Database::$connection);
+                                            if (count($_FILES) > 0) {
+                                                $image_num = count($_FILES);
+                                                for ($i = 0; $i < $image_num; $i++) {
+                                                    if (isset($_FILES["image-$i"])) {
+                                                        $image = $_FILES["image-$i"];
+                                                        $this->list_review_image($image, $user["email"], $review_id);
+                                                    }
+                                                }
+                                            }
+                                            echo ("success");
+                                        } else {
+                                            echo ("Something went wrong! 1");
+                                        }
+                                    } else {
+                                        echo ("Something went wrong! 2");
+                                    }
+                                } else {
+                                    echo ("Something went wrong! 3");
+                                }
+                            } else {
+                                echo ("Something went wrong! 4");
+                            }
+                        } else {
+                            echo ("Please select a star rating");
+                        }
+                    } else {
+                        echo ("Please select a star rating");
+                    }
+                } else {
+                    echo ("Please enter a description");
+                }
+            } else {
+                echo ("Please enter a title");
+            }
+        } else {
+            echo ("Please signin to your account");
+        }
+    }
+    // add review 
+
+    // update review 
+    public function load_review_data()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["invoice_id"]) && !empty($_POST["invoice_id"])) {
+                $invoice_id = $_POST["invoice_id"];
+                $user = $_SESSION["user"];
+                $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id` = ?;", [$invoice_id]);
+                $review_num = $review_resultset->num_rows;
+                if ($review_num == 1) {
+                    $review_data = $review_resultset->fetch_assoc();
+                    // fill stars count 
+                    $stars_count = $review_data["stars_count"];
+                    // fill stars count 
+                    // fill images 
+                    $image_array = array();
+                    $image_resultset = Database::search("SELECT * FROM `review_image` WHERE `review_id`=?", [$review_data["id"]]);
+                    $image_num = $image_resultset->num_rows;
+                    for ($i = 0; $i < $image_num; $i++) {
+                        $image_data = $image_resultset->fetch_assoc();
+                        $new_image_array = array(
+                            "name" => $image_data["review_image"],
+                            "value" => $image_data["id"]
+                        );
+                        array_push($image_array, $new_image_array);
+                    }
+                    // fill images 
+                    $response_array = array(
+                        "stars_count" => $stars_count,
+                        "images" => $image_array
+                    );
+                    echo json_encode($response_array);
+                }
+            }
+        }
+    }
+
+    public function update_review()
+    {
+        if ($this->check_session()) {
+            if (isset($_POST["invoice_id"]) && !empty($_POST["invoice_id"])) {
+                if (isset($_POST["title"]) && !empty($_POST["title"])) {
+                    if (isset($_POST["description"]) && !empty($_POST["description"])) {
+                        if (isset($_POST["stars_count"]) && !empty($_POST["stars_count"])) {
+                            if ($_POST["stars_count"] > 0 && $_POST["stars_count"] <= 5) {
+                                //
+                                $user = $_SESSION["user"];
+                                $invoice_id = $_POST["invoice_id"];
+                                $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `id`=?;", [$invoice_id]);
+                                $invoice_num = $invoice_resultset->num_rows;
+                                if ($invoice_num == 1) {
+                                    $invoice_data = $invoice_resultset->fetch_assoc();
+                                    $order = $invoice_data["order_id"];
+                                    $order_resultset = Database::search("SELECT * FROM `order` WHERE `id`=? AND `users_id`=?;", [$order, $user["id"]]);
+                                    $order_num = $order_resultset->num_rows;
+                                    if ($order_num == 1) {
+                                        $loaded_images = json_decode($_POST["loaded_images"]);
+                                        // update the product
+                                        $title = $_POST["title"];
+                                        $description = $_POST["description"];
+                                        $stars_count = $_POST["stars_count"];
+                                        $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id`=?;", [$invoice_id]);
+                                        $review_num = $review_resultset->num_rows;
+                                        if ($review_num == 1) {
+                                            $review_data = $review_resultset->fetch_assoc();
+                                            Database::iud(
+                                                "UPDATE `review` SET `title`=?,`description`=?,`stars_count`=? WHERE `invoice_id`=?;",
+                                                [$title, $description, $stars_count, $invoice_id]
+                                            );
+                                            // update the product
+                                            $old_images_resultset = Database::search("SELECT * FROM `review_image` WHERE `review_id`=?;", [$review_data["id"]]);
+                                            $old_images_num = $old_images_resultset->num_rows;
+                                            for ($i = 0; $i < $old_images_num; $i++) {
+                                                $old_image_data = $old_images_resultset->fetch_assoc();
+                                                $old_image_id = $old_image_data["id"];
+                                                $is_available = false;
+                                                foreach ($loaded_images as $item) {
+                                                    $image = $item->value;
+                                                    if ($image == $old_image_id) {
+                                                        $is_available = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!$is_available) {
+                                                    Database::iud("DELETE FROM `review_image` WHERE `id`=?;", [$old_image_id]);
+                                                    // delete the image from the files
+                                                    if (file_exists($old_image_data["review_image"])) {
+                                                        unlink($old_image_data["review_image"]);
+                                                    }
+                                                    //
+                                                }
+                                            }
+                                            if (count($_FILES) > 0) {
+                                                $image_num = count($_FILES);
+                                                for ($i = 0; $i < $image_num; $i++) {
+                                                    if (isset($_FILES["image-$i"])) {
+                                                        $image = $_FILES["image-$i"];
+                                                        $this->list_review_image($image, $user["email"], $review_data["id"]);
+                                                    }
+                                                }
+                                            }
+                                            echo ("success");
+                                        } else {
+                                            echo ("Something went wrong!");
+                                        }
+                                    } else {
+                                        echo ("Something went wrong!");
+                                    }
+                                } else {
+                                    echo ("Something went wrong!");
+                                }
+                                //
+                            } else {
+                                echo ("Please select a star rating");
+                            }
+                        } else {
+                            echo ("Please select a star rating");
+                        }
+                    } else {
+                        echo ("Please add your description");
+                    }
+                } else {
+                    echo ("Please add your title");
+                }
+            } else {
+                echo ("Something went wrong!");
+            }
+        } else {
+            echo ("Please signin to your account");
+        }
+    }
+    // update review 
 }

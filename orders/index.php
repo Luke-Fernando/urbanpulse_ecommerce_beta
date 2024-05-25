@@ -108,7 +108,7 @@ if (isset($_SESSION["user"])) {
                                 <a href="/urbanpulse_ecommerce_beta/invoice/?order_id=<?php echo $order_id; ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">invoice</a>
                             </div>
                             <div class="w-max h-auto mx-3 sm:mx-0 sm:mt-5">
-                                <a href="/urbanpulse_ecommerce_beta/add-review/?invoice_id=<?php echo $invoice_data["id"] ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">review item</a>
+                                <a href="/urbanpulse_ecommerce_beta/review/?invoice_id=<?php echo $invoice_data["id"] ?>" class="font-fm-inter font-normal text-sm capitalize text-[var(--active-bg)]">review item</a>
                             </div>
                         </div>
                     </div>

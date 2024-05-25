@@ -192,5 +192,26 @@ if (isset($_GET["action"])) {
             // record_order 
         }
         // order
+        // review
+        if ($_GET["action"] == "review") {
+            require "./product.php";
+            $product = new Product();
+            // add_review 
+            if ($_GET["process"] == "add_review") {
+                $product->add_review();
+            }
+            // add_review 
+            // load_review_data 
+            if ($_GET["process"] == "load_review_data") {
+                $product->load_review_data();
+            }
+            // load_review_data 
+            // update_review 
+            if ($_GET["process"] == "update_review") {
+                $product->update_review();
+            }
+            // update_review 
+        }
+        // review
     }
 }

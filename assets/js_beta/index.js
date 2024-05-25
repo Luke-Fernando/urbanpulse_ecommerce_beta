@@ -23,7 +23,7 @@ callUserMethod("reset-password-btn", "resetPassword");
 callUserMethod("update-profile-btn", "updateProfile");
 callUserMethod("update-profile-picture-btn", "updateProfilePicture", "change");
 
-function addProduct() {
+function product() {
   let product;
 
   // add product 
@@ -63,15 +63,15 @@ function addProduct() {
   // add product 
 
   // update product
-  function initializeData(triggerId) {
+  function initializeData(triggerId, method) {
     let trigger = document.querySelector(triggerId);
     if (trigger != null) {
       document.addEventListener("DOMContentLoaded", (e) => {
         if (product != null || product instanceof Product) {
-          product.loadProductData(e);
+          product[method](e);
         } else {
           product = new Product();
-          product.loadProductData(e);
+          product[method](e);
         }
       });
     }
@@ -98,11 +98,24 @@ function addProduct() {
   // update product
   initializeData("#update-product", "loadProductData");
   removeImage("added-images", "removeLoadedImages");
-  callProductMethod("update-item-btn", "updateProduct");
+  callProductMethod("#update-item-btn", "updateProduct");
   // update product
+
+  // review product 
+  callProductMethod("[data-rating-star]", "rateStart", "change");
+  callProductMethod("#review-img-input", "addReviewImages", "change");
+  removeImage("review-images", "removeReviewImages");
+  callProductMethod("#submit-review-btn", "addReview");
+  // review product
+
+  // update review
+  initializeData("#update-review", "loadReviewData");
+  removeImage("review-images", "removeLoadedReviewImages");
+  callProductMethod("#update-review-btn", "updateReview");
+  // update review
 }
 
-addProduct();
+product();
 
 
 function cart() {
@@ -183,7 +196,7 @@ function order() {
     let trigger = document.querySelector(triggerId);
     if (trigger != null) {
       document.addEventListener("DOMContentLoaded", (e) => {
-        if (order != null || order instanceof Product) {
+        if (order != null || order instanceof Order) {
           order[method](e);
         } else {
           order = new Order();
