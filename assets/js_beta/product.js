@@ -573,10 +573,21 @@ class Product {
   }
   // update product 
 
-  async setProductQuantity(event) {
+  async loadProductStock() {
     let currentUrl = window.location.search;
     let urlParams = new URLSearchParams(currentUrl);
     let productId = urlParams.get('id');
+
+    let values = [{ name: "product_id", data: productId }];
+    try {
+      let response = await this.connection.post(values, "../server/index.php?action=product&process=set_product_quantity");
+      this.stock = Number(response);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  async setProductQuantity(event) {
     const quantityInput = document.getElementById("quantity");
 
     let setQuantity = () => {
@@ -593,22 +604,6 @@ class Product {
           quantity--;
           quantityInput.value = quantity;
         }
-      }
-    }
-
-    if (this.stock == null) {
-      let processLoadSpinner = new Spinner();
-      processLoadSpinner.addProcessLoadSpinner();
-
-      let values = [{ name: "product_id", data: productId }];
-      try {
-        let response = await this.connection.post(values, "../server/index.php?action=product&process=set_product_quantity");
-        processLoadSpinner.removeProcessLoadSpinner(() => {
-          this.stock = Number(response);
-          setQuantity();
-        });
-      } catch (error) {
-        console.error("Error:", error);
       }
     }
 

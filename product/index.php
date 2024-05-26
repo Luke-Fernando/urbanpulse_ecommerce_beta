@@ -37,7 +37,7 @@ if (isset($_GET["id"])) {
         navbar($user);
         ?>
 
-        <section class="container px-3 sm:px-0 h-auto mt-5 mx-auto flex flex-wrap flex-col justify-start items-center lg:items-start lg:flex-row lg:justify-between">
+        <section id="product" class="container px-3 sm:px-0 h-auto mt-5 mx-auto flex flex-wrap flex-col justify-start items-center lg:items-start lg:flex-row lg:justify-between">
             <div class="w-full md:w-3/4 lg:w-2/5">
 
                 <div class="grid gap-4">
@@ -76,25 +76,49 @@ if (isset($_GET["id"])) {
             <div class="w-full lg:w-1/2">
                 <h3 class="font-fm-inter text-xl font-normal mt-4 capitalize"><?php echo $product_data["title"]; ?></h3>
 
+                <?php
+                $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `product_id`=?;", [$product_id]);
+                $invoice_num = $invoice_resultset->num_rows;
+                $total_reviews = 0;
+                $total_stars = 0;
+                for ($i = 0; $i < $invoice_num; $i++) {
+                    $invoice_data = $invoice_resultset->fetch_assoc();
+                    $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id`=?;", [$invoice_data["id"]]);
+                    $review_num = $review_resultset->num_rows;
+                    if ($review_num == 1) {
+                        $review_data = $review_resultset->fetch_assoc();
+                        $total_stars = $total_stars + $review_data["stars_count"];
+                        $total_reviews = $total_reviews + 1;
+                    }
+                }
+                if ($total_reviews != 0) {
+                    $average_stars = $total_stars / $total_reviews;
+                } else {
+                    $average_stars = 0;
+                }
+                $rounded_average_stars = round($average_stars);
+                ?>
                 <div class="flex items-center mt-3">
-                    <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                    </svg>
-                    <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                    </svg>
-                    <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                    </svg>
-                    <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                    </svg>
-                    <svg class="w-4 h-4 text-gray-300 mr-1 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                    </svg>
-                    <p class="ml-2 text-sm font-medium text-gray-500 font-fm-inter">4.95 out of 5</p>
+                    <?php
+                    for ($i = 1; $i < 6; $i++) {
+                        if ($i <= $rounded_average_stars) {
+                    ?>
+                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                            </svg>
+                        <?php
+                        } else {
+                        ?>
+                            <svg class="w-4 h-4 text-gray-300 mr-1 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                            </svg>
+                    <?php
+                        }
+                    }
+                    ?>
+                    <p class="ml-2 text-sm font-medium text-gray-500 font-fm-inter"><?php echo $average_stars; ?> out of 5</p>
                     <span class="w-1 h-1 mx-1.5 bg-gray-500 rounded-full"></span>
-                    <a href="#" class="text-sm font-medium text-gray-600 underline hover:no-underline font-fm-inter">73 reviews</a>
+                    <a href="#" class="text-sm font-medium text-gray-600 underline hover:no-underline font-fm-inter"><?php echo $total_reviews; ?> reviews</a>
                 </div>
 
                 <div class="mt-10">
@@ -262,183 +286,188 @@ if (isset($_GET["id"])) {
             <div class="w-full flex flex-col justify-start items-center md:flex-row md:justify-between md:items-start mt-10">
                 <div class="w-full mb-5 md:mb-0 md:w-[48%]">
                     <div class="flex items-center mb-2">
-                        <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                        </svg>
-                        <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                        </svg>
-                        <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                        </svg>
-                        <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                        </svg>
-                        <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                        </svg>
-                        <p class="ml-2 text-sm font-medium text-gray-900">4.95 out of 5</p>
+                        <?php
+                        for ($i = 1; $i < 6; $i++) {
+                            if ($i <= $rounded_average_stars) {
+                        ?>
+                                <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                </svg>
+                            <?php
+                            } else {
+                            ?>
+                                <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                </svg>
+                        <?php
+                            }
+                        }
+                        ?>
+                        <p class="ml-2 text-sm font-medium text-gray-900"><?php echo $total_stars; ?> out of 5</p>
                     </div>
-                    <p class="text-sm font-medium text-gray-500">1,745 global ratings</p>
+                    <p class="text-sm font-medium text-gray-500"><?php echo $total_reviews; ?> global ratings</p>
+                    <?php
+                    $stars_percentage = array(
+                        "1" => 0,
+                        "2" => 0,
+                        "3" => 0,
+                        "4" => 0,
+                        "5" => 0,
+                    );
+                    if ($total_reviews > 0) {
+                        $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `product_id` = ?;", [$product_id]);
+                        $invoice_num = $invoice_resultset->num_rows;
+                        $star_count = array(
+                            "1" => 0,
+                            "2" => 0,
+                            "3" => 0,
+                            "4" => 0,
+                            "5" => 0,
+                        );
+                        for ($i = 0; $i < $invoice_num; $i++) {
+                            $invoice_data = $invoice_resultset->fetch_assoc();
+                            for ($j = 1; $j < 6; $j++) {
+                                $star_review_resultset = Database::search("SELECT COUNT(`id`) FROM `review` WHERE `invoice_id`=? AND `stars_count`=?;", [$invoice_data["id"], $j]);
+                                $star_review_data = $star_review_resultset->fetch_assoc();
+                                $star_count["$j"] += $star_review_data["COUNT(`id`)"];
+                            }
+                        }
+                        for ($i = 1; $i < 6; $i++) {
+                            if ($star_count["$i"] > 0) {
+                                $star_percentage = ($star_count["$i"] / $total_reviews) * 100;
+                                $stars_percentage["$i"] = round($star_percentage);
+                            }
+                        }
+                    }
+                    ?>
                     <div class="flex items-center mt-4">
                         <a href="#" class="text-sm font-medium text-[var(--main-bg-high)] hover:underline">5 star</a>
                         <div class="w-2/4 h-5 mx-4 bg-gray-200 rounded">
-                            <div class="h-5 bg-yellow-300 rounded" style="width: 70%"></div>
+                            <div class="h-5 bg-yellow-300 rounded" style="width: <?php echo $stars_percentage["5"]; ?>%"></div>
                         </div>
-                        <span class="text-sm font-medium text-gray-500">70%</span>
+                        <span class="text-sm font-medium text-gray-500"><?php echo $stars_percentage["5"]; ?>%</span>
                     </div>
                     <div class="flex items-center mt-4">
                         <a href="#" class="text-sm font-medium text-[var(--main-bg-high)] hover:underline">4 star</a>
                         <div class="w-2/4 h-5 mx-4 bg-gray-200 rounded">
-                            <div class="h-5 bg-yellow-300 rounded" style="width: 17%"></div>
+                            <div class="h-5 bg-yellow-300 rounded" style="width: <?php echo $stars_percentage["4"]; ?>%"></div>
                         </div>
-                        <span class="text-sm font-medium text-gray-500">17%</span>
+                        <span class="text-sm font-medium text-gray-500"><?php echo $stars_percentage["4"]; ?>%</span>
                     </div>
                     <div class="flex items-center mt-4">
                         <a href="#" class="text-sm font-medium text-[var(--main-bg-high)] hover:underline">3 star</a>
                         <div class="w-2/4 h-5 mx-4 bg-gray-200 rounded">
-                            <div class="h-5 bg-yellow-300 rounded" style="width: 8%"></div>
+                            <div class="h-5 bg-yellow-300 rounded" style="width: <?php echo $stars_percentage["3"]; ?>%"></div>
                         </div>
-                        <span class="text-sm font-medium text-gray-500">8%</span>
+                        <span class="text-sm font-medium text-gray-500"><?php echo $stars_percentage["3"]; ?>%</span>
                     </div>
                     <div class="flex items-center mt-4">
                         <a href="#" class="text-sm font-medium text-[var(--main-bg-high)] hover:underline">2 star</a>
                         <div class="w-2/4 h-5 mx-4 bg-gray-200 rounded">
-                            <div class="h-5 bg-yellow-300 rounded" style="width: 4%"></div>
+                            <div class="h-5 bg-yellow-300 rounded" style="width: <?php echo $stars_percentage["2"]; ?>%"></div>
                         </div>
-                        <span class="text-sm font-medium text-gray-500">4%</span>
+                        <span class="text-sm font-medium text-gray-500"><?php echo $stars_percentage["2"]; ?>%</span>
                     </div>
                     <div class="flex items-center mt-4">
                         <a href="#" class="text-sm font-medium text-[var(--main-bg-high)] hover:underline">1 star</a>
                         <div class="w-2/4 h-5 mx-4 bg-gray-200 rounded">
-                            <div class="h-5 bg-yellow-300 rounded" style="width: 1%"></div>
+                            <div class="h-5 bg-yellow-300 rounded" style="width: <?php echo $stars_percentage["1"]; ?>%"></div>
                         </div>
-                        <span class="text-sm font-medium text-gray-500">1%</span>
+                        <span class="text-sm font-medium text-gray-500"><?php echo $stars_percentage["1"]; ?>%</span>
                     </div>
                 </div>
                 <div class="w-full md:w-[48%]">
-                    <!-- review  -->
-                    <article class="my-4">
-                        <div class="flex items-center mb-4 space-x-4">
-                            <img class="w-10 h-10 rounded-full" src="../assets/images/user/default-user-male.png" alt="">
-                            <div class="space-y-1 font-medium dark:text-white">
-                                <p>Jese Leos <time datetime="2014-08-16 19:00" class="block text-sm text-gray-500 dark:text-gray-400">Joined on August 2014</time></p>
-                            </div>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <h3 class="ml-2 text-sm font-semibold text-gray-900">Thinking to buy another one!</h3>
-                        </div>
-                        <footer class="mb-5 text-sm text-gray-500 font-fm-inter">
-                            <p>Reviewed in the United Kingdom on <time datetime="2017-03-03 19:00">March 3, 2017</time></p>
-                        </footer>
-                        <p class="mb-2 text-gray-500 font-fm-inter text-sm">This is my third Invicta Pro Diver. They are just fantastic value for money. This one arrived yesterday and the first thing I did was set the time, popped on an identical strap from another Invicta and went in the shower with it to test the waterproofing.... No problems.</p>
-                        <p class="mb-3 text-gray-500 font-fm-inter text-sm">It is obviously not the same build quality as those very expensive watches. But that is like comparing a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.</p>
-                        <aside>
-                            <p class="mt-1 text-xs text-gray-500">19 people found this helpful</p>
-                            <div class="flex items-center mt-3 space-x-3 divide-x divide-gray-200 dark:divide-gray-600">
-                                <a href="#" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-xs px-2 py-1.5">Helpful</a>
-                                <a href="#" class="pl-4 text-sm font-medium text-blue-600 hover:underline">Report abuse</a>
-                            </div>
-                        </aside>
-                    </article>
-                    <!-- review  -->
-                    <article class="my-4">
-                        <div class="flex items-center mb-4 space-x-4">
-                            <img class="w-10 h-10 rounded-full" src="../assets/images/user/default-user-male.png" alt="">
-                            <div class="space-y-1 font-medium dark:text-white">
-                                <p>Jese Leos <time datetime="2014-08-16 19:00" class="block text-sm text-gray-500 dark:text-gray-400">Joined on August 2014</time></p>
-                            </div>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <h3 class="ml-2 text-sm font-semibold text-gray-900">Thinking to buy another one!</h3>
-                        </div>
-                        <footer class="mb-5 text-sm text-gray-500 font-fm-inter">
-                            <p>Reviewed in the United Kingdom on <time datetime="2017-03-03 19:00">March 3, 2017</time></p>
-                        </footer>
-                        <p class="mb-2 text-gray-500 font-fm-inter text-sm">This is my third Invicta Pro Diver. They are just fantastic value for money. This one arrived yesterday and the first thing I did was set the time, popped on an identical strap from another Invicta and went in the shower with it to test the waterproofing.... No problems.</p>
-                        <p class="mb-3 text-gray-500 font-fm-inter text-sm">It is obviously not the same build quality as those very expensive watches. But that is like comparing a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.</p>
-                        <aside>
-                            <p class="mt-1 text-xs text-gray-500">19 people found this helpful</p>
-                            <div class="flex items-center mt-3 space-x-3 divide-x divide-gray-200 dark:divide-gray-600">
-                                <a href="#" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-xs px-2 py-1.5">Helpful</a>
-                                <a href="#" class="pl-4 text-sm font-medium text-blue-600 hover:underline">Report abuse</a>
-                            </div>
-                        </aside>
-                    </article>
-                    <!-- review  -->
-                    <article class="my-4">
-                        <div class="flex items-center mb-4 space-x-4">
-                            <img class="w-10 h-10 rounded-full" src="../assets/images/user/default-user-male.png" alt="">
-                            <div class="space-y-1 font-medium dark:text-white">
-                                <p>Jese Leos <time datetime="2014-08-16 19:00" class="block text-sm text-gray-500 dark:text-gray-400">Joined on August 2014</time></p>
-                            </div>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                            </svg>
-                            <h3 class="ml-2 text-sm font-semibold text-gray-900">Thinking to buy another one!</h3>
-                        </div>
-                        <footer class="mb-5 text-sm text-gray-500 font-fm-inter">
-                            <p>Reviewed in the United Kingdom on <time datetime="2017-03-03 19:00">March 3, 2017</time></p>
-                        </footer>
-                        <p class="mb-2 text-gray-500 font-fm-inter text-sm">This is my third Invicta Pro Diver. They are just fantastic value for money. This one arrived yesterday and the first thing I did was set the time, popped on an identical strap from another Invicta and went in the shower with it to test the waterproofing.... No problems.</p>
-                        <p class="mb-3 text-gray-500 font-fm-inter text-sm">It is obviously not the same build quality as those very expensive watches. But that is like comparing a Citroën to a Ferrari. This watch was well under £100! An absolute bargain.</p>
-                        <aside>
-                            <p class="mt-1 text-xs text-gray-500">19 people found this helpful</p>
-                            <div class="flex items-center mt-3 space-x-3 divide-x divide-gray-200 dark:divide-gray-600">
-                                <a href="#" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-xs px-2 py-1.5">Helpful</a>
-                                <a href="#" class="pl-4 text-sm font-medium text-blue-600 hover:underline">Report abuse</a>
-                            </div>
-                        </aside>
-                    </article>
-                    <!-- review  -->
-                    <a href="#" class="flex justify-start items-center w-full font-fm-inter text-[var(--active-bg)] capitalize text-sm mt-10">see all
-                        <span class="material-symbols-outlined !text-sm !no-underline ml-1">
-                            east
-                        </span></a>
+                    <?php
+                    if ($total_reviews > 0) {
+                        $invoice_resultset = Database::search("SELECT * FROM `invoice` WHERE `product_id`=?;", [$product_id]);
+                        $invoice_num = $invoice_resultset->num_rows;
+                        for ($i = 0; $i < $invoice_num; $i++) {
+                            $invoice_data = $invoice_resultset->fetch_assoc();
+                            $review_resultset = Database::search("SELECT * FROM `review` WHERE `invoice_id`=?;", [$invoice_data["id"]]);
+                            $review_num = $review_resultset->num_rows;
+                            if ($review_num == 1) {
+                                $review_data = $review_resultset->fetch_assoc();
+                                $review_title = $review_data["title"];
+                                $review_description = $review_data["description"];
+                                $help_count = $review_data["help_count"];
+                                $current_star_count = $review_data["stars_count"];
+                                $datetime_added = $review_data["datetime_added"];
+                                $datetime_object = new DateTime($datetime_added);
+                                $order_resultset = Database::search("SELECT * FROM `order` WHERE `id`=?;", [$invoice_data["order_id"]]);
+                                $order_data = $order_resultset->fetch_assoc();
+                                $reviewer_id = $order_data["users_id"];
+                                $reviewer_resultset = Database::search("SELECT * FROM `users` WHERE `id`=?;", [$reviewer_id]);
+                                $reviewer_data = $reviewer_resultset->fetch_assoc();
+                                $reviewer_first_name = $reviewer_data["first_name"];
+                                $reviewer_last_name = $reviewer_data["last_name"];
+                                $datetime_joined = $reviewer_data["datetime_joined"];
+                                $datetime_joined_object = new DateTime($datetime_joined);
+                                $profile_picture_resultset = Database::search("SELECT * FROM `profile_picture` WHERE `user_id`=?;", [$reviewer_id]);
+                                $profile_picture_data = $profile_picture_resultset->fetch_assoc();
+                                $profile_picture = $profile_picture_data["profile_picture"];
+                    ?>
+                                <!-- review  -->
+                                <article class="my-4">
+                                    <div class="flex items-center mb-4 space-x-4">
+                                        <img class="w-10 h-10 rounded-full" src="../assets/images/user/<?php echo $profile_picture; ?>" alt="">
+                                        <div class="space-y-1 font-medium dark:text-white">
+                                            <p>
+                                                <?php echo "$reviewer_first_name $reviewer_last_name"; ?>
+                                                <time datetime="<?php echo $datetime_joined; ?>" class="block text-sm text-gray-500">
+                                                    Joined on <?php echo $datetime_joined_object->format("Y F"); ?>
+                                                </time>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <?php
+                                        for ($i = 1; $i < 6; $i++) {
+                                            if ($i <= $current_star_count) {
+                                        ?>
+                                                <svg class="w-4 h-4 text-yellow-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                                </svg>
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <svg class="w-4 h-4 text-gray-300 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                                </svg>
+                                        <?php
+                                            }
+                                        }
+                                        ?>
+                                        <h3 class="ml-2 text-sm font-semibold text-gray-900"><?php echo $review_title; ?></h3>
+                                    </div>
+                                    <footer class="mb-5 text-sm text-gray-500 font-fm-inter">
+                                        <p>Reviewed in the United Kingdom on <time datetime="<?php echo $datetime_added; ?>"><?php echo $datetime_object->format('Y'); ?> <?php echo $datetime_object->format('M'); ?> <?php echo $datetime_object->format('d'); ?></time></p>
+                                    </footer>
+                                    <p class="mb-2 text-gray-500 font-fm-inter text-sm"><?php echo $review_description; ?></p>
+                                    <aside>
+                                        <p class="mt-1 text-xs text-gray-500"><?php echo $help_count; ?> people found this helpful</p>
+                                        <div class="flex items-center mt-3 space-x-3 divide-x divide-gray-200 dark:divide-gray-600">
+                                            <a href="#" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-xs px-2 py-1.5">Helpful</a>
+                                            <a href="#" class="pl-4 text-sm font-medium text-blue-600 hover:underline">Report abuse</a>
+                                        </div>
+                                    </aside>
+                                </article>
+                                <!-- review  -->
+                        <?php
+                            }
+                        }
+                        ?>
+                        <a href="#" class="flex justify-start items-center w-full font-fm-inter text-[var(--active-bg)] capitalize text-sm mt-10">see all
+                            <span class="material-symbols-outlined !text-sm !no-underline ml-1">
+                                east
+                            </span>
+                        </a>
+                    <?php
+                    } else {
+                    ?>
+                        <p class="text-sm font-normal font-fm-inter">There are no reviews yet.</p>
+                    <?php
+                    }
+                    ?>
                 </div>
             </div>
             <div class="w-full flex justify-start items-center mt-10 mb-5">

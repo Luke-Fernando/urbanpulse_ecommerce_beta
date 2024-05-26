@@ -79,6 +79,7 @@ function product() {
   // update product
 
   // add product 
+  initializeData("#product", "loadProductStock");
   callProductMethod("#add-color-btn", "addColor");
   callProductMethod("#add-location-btn", "addLocations");
   callProductMethod("#add-country-btn", "addShippingCosts");
