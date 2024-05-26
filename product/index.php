@@ -405,6 +405,8 @@ if (isset($_GET["id"])) {
                                 $profile_picture_resultset = Database::search("SELECT * FROM `profile_picture` WHERE `user_id`=?;", [$reviewer_id]);
                                 $profile_picture_data = $profile_picture_resultset->fetch_assoc();
                                 $profile_picture = $profile_picture_data["profile_picture"];
+                                $review_images_resultset = Database::search("SELECT * FROM `review_image` WHERE `review_id`=?;", [$review_data["id"]]);
+                                $review_images_num = $review_images_resultset->num_rows;
                     ?>
                                 <!-- review  -->
                                 <article class="my-4">
@@ -443,6 +445,25 @@ if (isset($_GET["id"])) {
                                         <p>Reviewed in the United Kingdom on <time datetime="<?php echo $datetime_added; ?>"><?php echo $datetime_object->format('Y'); ?> <?php echo $datetime_object->format('M'); ?> <?php echo $datetime_object->format('d'); ?></time></p>
                                     </footer>
                                     <p class="mb-2 text-gray-500 font-fm-inter text-sm"><?php echo $review_description; ?></p>
+                                    <?php
+                                    if ($review_images_num > 0) {
+                                    ?>
+                                        <div class="w-full flex justify-start items-start flex-wrap">
+                                            <?php
+                                            for ($i = 0; $i < $review_images_num; $i++) {
+                                                $review_images_data = $review_images_resultset->fetch_assoc();
+                                                $review_image = $review_images_data["review_image"];
+                                            ?>
+                                                <div class="w-28 aspect-square flex justify-center items-center overflow-hidden">
+                                                    <img src="../assets/images/review/<?php echo $review_image; ?>" class="min-w-full min-h-full object-cover" alt="">
+                                                </div>
+                                            <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    <?php
+                                    }
+                                    ?>
                                     <aside>
                                         <p class="mt-1 text-xs text-gray-500"><?php echo $help_count; ?> people found this helpful</p>
                                         <div class="flex items-center mt-3 space-x-3 divide-x divide-gray-200 dark:divide-gray-600">
